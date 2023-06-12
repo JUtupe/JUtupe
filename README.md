@@ -2,7 +2,7 @@
 ### 📫 How to reach me
 
 - LinkedIn: https://www.linkedin.com/in/wiktor-petryszyn-4a25b21b9/
-- Discord: JUtupe#5710
+- Discord: jutupe
 
 ### 🌱 I’m currently learning
 
