@@ -64,9 +64,11 @@ function App() {
           target={[0, 0.9, 0]}
         />
         <EffectComposer>
-          {vignette && <Vignette/>}
-          {pixelation && <Pixelation/>}
-          {grain && <Noise opacity={0.02}/>}
+          <>
+            {vignette && <Vignette/>}
+            {pixelation && <Pixelation/>}
+            {grain && <Noise opacity={0.02}/>}
+          </>
         </EffectComposer>
       </Canvas>
     </div>
