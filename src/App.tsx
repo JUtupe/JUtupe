@@ -4,45 +4,13 @@ import {OrbitControls, useAnimations, useGLTF} from '@react-three/drei'
 import * as THREE from 'three';
 import {EffectComposer, Noise, Pixelation, Vignette} from '@react-three/postprocessing'
 import {Leva, useControls} from 'leva'
-import {useEffect, useRef, useState} from "react";
-import { Physics, RigidBody } from '@react-three/rapier'
+import {useEffect, useRef} from "react";
+import {Physics, RigidBody, RapierRigidBody, type RigidBodyProps} from '@react-three/rapier'
+import {TruckModel} from "./objects/Truck.tsx";
+import {useKeyboardControls} from "./hooks/useKeyboardControls.ts";
+import {Vector3} from "three";
 
-function useTruckControls() {
-  const [controls, setControls] = useState({forward: false, backward: false, left: false, right: false})
-
-  useEffect(() => {
-    const down = (e) => {
-      if (e.repeat) return
-      setControls(c => ({
-        ...c,
-        forward: e.key === 'w' ? true : c.forward,
-        backward: e.key === 's' ? true : c.backward,
-        left: e.key === 'a' ? true : c.left,
-        right: e.key === 'd' ? true : c.right,
-      }))
-    }
-    const up = (e) => {
-      setControls(c => ({
-        ...c,
-        forward: e.key === 'w' ? false : c.forward,
-        backward: e.key === 's' ? false : c.backward,
-        left: e.key === 'a' ? false : c.left,
-        right: e.key === 'd' ? false : c.right,
-      }))
-    }
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup', up)
-
-    return () => {
-      window.removeEventListener('keydown', down)
-      window.removeEventListener('keyup', up)
-    }
-  }, [])
-
-  return controls
-}
-
-function Room(props) {
+function Room(props: RigidBodyProps) {
   const group = useRef(null)
   const {scene, animations} = useGLTF('/models/room.gltf')
   const {actions} = useAnimations(animations, group)
@@ -52,104 +20,141 @@ function Room(props) {
   }, [actions])
 
   return (
-    <group ref={group} {...props}>
-        <RigidBody
-          type="fixed"
-        >
-          <primitive object={scene}/>
-        </RigidBody>
-    </group>
+    <RigidBody
+      {...props}
+      ref={group}
+      type="fixed"
+    >
+      <primitive object={scene}/>
+    </RigidBody>
   )
 }
 
-function Truck(props) {
+const FORCE_MULTIPLIER = 0.0001
+
+function Truck(props: RigidBodyProps) {
   const {scene} = useGLTF('/models/truck.gltf')
   const ref = useRef<THREE.Group>(null)
-  const controls = useTruckControls()
-  const rigid = useRef<any>(null)
-  const [state, setState] = useState({
-    position: new THREE.Vector3(0, 1.2, 0),
-    rotation: 0,
-    velocity: 0
+  const rigid = useRef<RapierRigidBody>(null)
+
+  const controls = useKeyboardControls()
+
+  useEffect(() => {
+    if (rigid.current && controls.space) {
+      rigid.current.setLinvel({x: 0, y: 0, z: 0}, true)
+      rigid.current.resetForces(true)
+      rigid.current.resetTorques(true)
+      rigid.current.setRotation(new THREE.Quaternion(0, 0, 0, 1), true)
+      rigid.current.setTranslation(new THREE.Vector3(1, 1.14, 0), true)
+    }
+  }, [controls.space])
+
+  useEffect(() => {
+    if (rigid.current) {
+      rigid.current.setAdditionalMassProperties(rigid.current.mass(), new Vector3(0, -0.01, 0), new Vector3(0, 0, 0), {x: 0, y: 0, z: 0, w: 0}, true)
+    }
+  }, [rigid.current]);
+
+  const {maxSpeed} = useControls('Drive', {
+    maxSpeed: { value: 1, min: 0.1, max: 2, step: 0.1, label: 'Mak speed' },
   })
 
-  useFrame((_, delta) => {
+  const wheels = useRef<Record<string, THREE.Object3D>>({})
+  const wheelHolders = useRef<Record<string, THREE.Object3D>>({})
+  const steerAngleRef = useRef(0)
+
+  useEffect(() => {
+    const wheelsRoot = ref.current?.getObjectByName('wheels')
+    if (wheelsRoot) {
+      for (const holderName of [
+        'front_left_wheel_holder',
+        'front_right_wheel_holder'
+      ]) {
+        const holder = wheelsRoot.getObjectByName(holderName)
+        if (holder) {
+          wheelHolders.current[holderName] = holder
+        }
+      }
+      for (const name of [
+        'front_left_wheel',
+        'front_right_wheel',
+        'back_left_wheel',
+        'back_right_wheel'
+      ]) {
+        const obj = wheelsRoot.getObjectByName(name)
+        if (obj) {
+          wheels.current[name] = obj
+        }
+      }
+    }
+  }, [scene])
+
+  const wheelRotation = useRef(0)
+
+  useFrame(() => {
     if (!rigid.current) return
 
-    const rb = rigid.current
-    const pos = rb.translation()
-    const rot = rb.rotation()
-    let velocity = state.velocity
+    const impulse = maxSpeed
+    let forward = 0
+    if (controls.w) forward += 1 * FORCE_MULTIPLIER
+    if (controls.s) forward -= 1 * FORCE_MULTIPLIER
 
-    const ACC = 1
-    const MAX_SPEED = 2
-    const ROT_SPEED = 1.5
-    const FRICTION = 4
+    const body = rigid.current
+    const quat = body.rotation()
+    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w))
 
-    // Poprawka: przechowuj yaw osobno, nie wyliczaj z rotacji fizyki
-    let yaw = state.rotation
+    let steerInput = 0
+    if (controls.a) steerInput += 1
+    if (controls.d) steerInput -= 1
 
-    // Skręcanie tylko podczas jazdy
-    let turning = 0
-    if ((controls.forward || controls.backward) && controls.left)
-      turning = 1
-    if ((controls.forward || controls.backward) && controls.right)
-      turning = -1
+    const maxSteer = Math.PI / 7
+    const steerTarget = steerInput * maxSteer
+    steerAngleRef.current += (steerTarget - steerAngleRef.current) * 0.15
 
-    // Zmieniaj yaw tylko gdy się porusza
-    if (turning !== 0 && velocity !== 0) {
-      // Skręcanie zależne od kierunku jazdy
-      yaw += ROT_SPEED * delta * turning * Math.sign(velocity)
+    if (forward !== 0 && Math.abs(steerAngleRef.current) > 0.001) {
+      const turnRadius = 2.5 / Math.tan(steerAngleRef.current)
+      const angularVelocity = (forward * impulse) / turnRadius
+      const currentQuat = new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w)
+      const euler = new THREE.Euler().setFromQuaternion(currentQuat)
+      euler.y += angularVelocity
+      const newQuat = new THREE.Quaternion().setFromEuler(euler)
+      body.setRotation({x: newQuat.x, y: newQuat.y, z: newQuat.z, w: newQuat.w}, false)
     }
 
-    // Przyspieszanie/hamowanie
-    if (controls.forward) velocity += ACC * delta
-    if (controls.backward) velocity -= ACC * delta
-    velocity = Math.max(Math.min(velocity, MAX_SPEED), -MAX_SPEED / 2)
-
-    // Kierunek jazdy zgodny z yaw
-    const direction = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
-    rb.setLinvel({
-      x: direction.x * velocity,
-      y: rb.linvel().y,
-      z: direction.z * velocity
-    }, true)
-    rb.setAngvel({x: 0, y: 0, z: 0}, true)
-    rb.setRotation({x: 0, y: yaw + Math.PI, z: 0, w: 1}, true)
-
-    // Friction
-    if (!controls.forward && !controls.backward) {
-      if (Math.abs(velocity) < 0.1) velocity = 0
-      else velocity -= FRICTION * delta * Math.sign(velocity)
+    if (forward !== 0) {
+      const force = dir.clone().multiplyScalar(impulse * forward)
+      body.applyImpulse({x: force.x, y: 0, z: force.z}, true)
     }
 
-    setState({
-      position: new THREE.Vector3(pos.x, pos.y, pos.z),
-      rotation: yaw,
-      velocity
-    })
+    const frontSteer = steerAngleRef.current
+    const holders = [
+      {holder: 'front_left_wheel_holder', wheel: 'front_left_wheel'},
+      {holder: 'front_right_wheel_holder', wheel: 'front_right_wheel'}
+    ]
+    for (const {holder} of holders) {
+      const h = wheelHolders.current[holder]
+      if (h) {
+        h.rotation.y = frontSteer
+      }
+    }
 
-    // Koła
-    if (ref.current) {
-      const wheelsGroup = ref.current.getObjectByName('wheels')
-      if (wheelsGroup) {
-        const wheelNames = [
-          'front_left_wheel',
-          'front_right_wheel',
-          'back_left_wheel',
-          'back_right_wheel'
-        ]
-        const steerAngle = ((controls.left ? 1 : 0) - (controls.right ? 1 : 0)) * 0.5 * ((controls.forward || controls.backward) ? 1 : 0)
-        wheelNames.forEach(name => {
-          const wheel = wheelsGroup.getObjectByName(name)
-          if (wheel) {
-            if (name.startsWith('front')) {
-              wheel.rotation.y = steerAngle
-            } else {
-              wheel.rotation.y = 0
-            }
-          }
-        })
+    const linvel = body.linvel()
+    const velocity = new THREE.Vector3(linvel.x, 0, linvel.z)
+    const truckForward = dir.clone().setY(0).normalize()
+    const speed = -velocity.dot(truckForward)
+    const wheelCircumference = 1
+    const rotationDelta = (speed / wheelCircumference) * 2 * Math.PI
+    wheelRotation.current += rotationDelta
+
+    for (const name of [
+      'front_left_wheel',
+      'front_right_wheel',
+      'back_left_wheel',
+      'back_right_wheel'
+    ]) {
+      const wheel = wheels.current[name]
+      if (wheel) {
+        wheel.rotation.x = wheelRotation.current
       }
     }
   })
@@ -158,20 +163,18 @@ function Truck(props) {
     <RigidBody
       {...props}
       ref={rigid}
-      linearDamping={0.8}
-      angularDamping={0.95}
-      friction={1}
-      restitution={0.1}
+      friction={0.7}
+      restitution={0.5}
+      colliders={'trimesh'}
     >
-      <primitive ref={ref} object={scene}  />
+      <TruckModel ref={ref}/>
     </RigidBody>
   )
 }
 
-function Trailer(props) {
+function Trailer(props: RigidBodyProps) {
   const {scene} = useGLTF('/models/trailer.gltf')
-  const ref = useRef<THREE.Group>(null)
-  const rigid = useRef<any>(null)
+  const rigid = useRef<RapierRigidBody>(null)
 
   return (
     <RigidBody
@@ -182,7 +185,7 @@ function Trailer(props) {
       friction={1}
       restitution={0.1}
     >
-      <primitive ref={ref} object={scene} />
+      <primitive object={scene}/>
     </RigidBody>
   )
 }
@@ -194,16 +197,20 @@ function App() {
     pixelation: {value: false, label: 'Pixelation'}
   })
 
+  const {debug} = useControls('Physics', {
+    debug: {value: true, label: 'Debug Rigidbody'}
+  })
+
   return (
     <div className={'h-screen w-screen'} style={{position: 'relative'}}>
       <Leva collapsed/>
       <Canvas
-        camera={{position: [0, 5, -10], fov: 50}}
+        camera={{position: [-2, 2.5, 2], fov: 50}}
         onCreated={({camera}) => camera.lookAt(0, 6, 0)}
         shadows
         style={{background: 'lightblue'}}
       >
-        <Physics gravity={[0, -9.81, 0]}>
+        <Physics gravity={[0, -9.81, 0]} debug={debug}>
           <ambientLight intensity={0.3}/>
           <directionalLight position={[1, 1, 1]} color={'white'}/>
 
@@ -219,8 +226,6 @@ function App() {
 
         <OrbitControls
           makeDefault
-          // enablePan={false}
-          // minDistance={2.5}
           maxDistance={9}
           minAzimuthAngle={-Infinity}
           maxAzimuthAngle={Infinity}
