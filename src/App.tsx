@@ -198,7 +198,7 @@ function App() {
   })
 
   const {debug} = useControls('Physics', {
-    debug: {value: true, label: 'Debug Rigidbody'}
+    debug: {value: false, label: 'Debug Rigidbody'}
   })
 
   return (
