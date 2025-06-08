@@ -6,7 +6,7 @@ import { EffectComposer, Noise, Pixelation, Vignette } from '@react-three/postpr
 import { Leva, useControls } from 'leva'
 import { useEffect, useRef } from "react";
 import { Physics, RigidBody, RapierRigidBody, type RigidBodyProps } from '@react-three/rapier'
-import { TruckModel } from "./objects/Truck.tsx";
+import { Truck } from "./objects/Truck.tsx";
 
 const CONTROLS = {
   forward: 'forward',
@@ -23,7 +23,6 @@ export const CONTROLS_MAP = [
   { name: CONTROLS.right, keys: ['ArrowRight', 'd', 'D'] },
   { name: CONTROLS.brake, keys: ['Space'] },
 ]
-
 
 function Room(props: RigidBodyProps) {
   const group = useRef(null)
@@ -78,7 +77,7 @@ function App() {
     <div className={'h-screen w-screen'} style={{ position: 'relative' }}>
       <Leva />
       <Canvas
-        camera={{ position: [-2, 2.5, 2], fov: 50 }}
+        camera={{ position: [-2, 4, 2], fov: 50 }}
         shadows
         style={{ background: 'lightblue' }}
       >
@@ -95,13 +94,10 @@ function App() {
           </RigidBody>
 
           <KeyboardControls map={CONTROLS_MAP}>
+            <Room  scale={20}/>
 
-            {/* <Room /> */}
-              
-            <TruckModel position={[1, 1.14, 0]} scale={0.3
-
-            } />
-            <Trailer position={[1.3, 1.14, 0]} scale={0.05} rotation={[0, Math.PI / 2, 0]} />
+            <Truck position={[16, 24, 0]} />
+            <Trailer position={[20, 24, 0]} rotation={[0, Math.PI / 2, 0]} />
           </KeyboardControls>
         </Physics>
 
@@ -112,7 +108,7 @@ function App() {
           maxAzimuthAngle={Infinity}
           minPolarAngle={-Math.PI / 2}
           maxPolarAngle={Math.PI / 2 - 0.1}
-          target={[1, 1.14, 0]}
+          target={[16, 24, 0]}
         />
         <EffectComposer>
           <>

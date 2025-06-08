@@ -1,13 +1,13 @@
-import { useKeyboardControls } from "@react-three/drei"
-import { RapierRigidBody, useFixedJoint, useRevoluteJoint } from "@react-three/rapier"
-import { useEffect, type RefObject } from "react"
-import type { Vector3Tuple, Vector4Tuple } from "three"
-import { MotorModel } from '@dimforge/rapier3d-compat'
+import {useKeyboardControls} from "@react-three/drei"
+import {RapierRigidBody, useFixedJoint, useRevoluteJoint} from "@react-three/rapier"
+import {type RefObject, useEffect} from "react"
+import type {Vector3Tuple, Vector4Tuple} from "three"
+import {MotorModel} from '@dimforge/rapier3d-compat'
 
 const AXLE_TO_CHASSIS_JOINT_STIFFNESS = 100
 const AXLE_TO_CHASSIS_JOINT_DAMPING = 10
 
-const DRIVEN_WHEEL_TARGET_VELOCITY = 1000
+const DRIVEN_WHEEL_TARGET_VELOCITY = 50
 const DRIVEN_WHEEL_FACTOR = 10
 
 const TURN_ANGLE = 0.5
