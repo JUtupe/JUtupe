@@ -4,13 +4,13 @@ import {type RefObject, useEffect} from "react"
 import type {Vector3Tuple, Vector4Tuple} from "three"
 import {MotorModel} from '@dimforge/rapier3d-compat'
 
-const AXLE_TO_CHASSIS_JOINT_STIFFNESS = 100
-const AXLE_TO_CHASSIS_JOINT_DAMPING = 10
+const AXLE_TO_CHASSIS_JOINT_STIFFNESS = 1000
+const AXLE_TO_CHASSIS_JOINT_DAMPING = 100
 
-const DRIVEN_WHEEL_TARGET_VELOCITY = 50
-const DRIVEN_WHEEL_FACTOR = 10
+const DRIVEN_WHEEL_TARGET_VELOCITY = 80
+const DRIVEN_WHEEL_FACTOR = 70
 
-const TURN_ANGLE = 0.5
+const TURN_ANGLE = 0.25
 
 type FixedJointProps = {
     body: RefObject<RapierRigidBody>

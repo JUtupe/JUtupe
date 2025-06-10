@@ -4,7 +4,7 @@ import React, {createRef, type RefObject, useMemo, useRef} from 'react'
 import {useGLTF} from '@react-three/drei'
 import type {GLTF} from 'three-stdlib'
 import {CylinderCollider, RapierRigidBody, RigidBody} from '@react-three/rapier'
-import {AxleJoint, SteeredJoint} from '../util/joints'
+import {AxleJoint, FixedJoint, SteeredJoint} from '../util/joints'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -29,7 +29,7 @@ type WheelInfo = {
 const axleY = -0.1
 const wheelY = -0.1
 
-export function Truck({position}: { position: Vector3Tuple }) {
+export function Truck({position, scale}: { position: Vector3Tuple, scale?: number }) {
   const {nodes} = useGLTF('/models/truck.gltf') as unknown as GLTFResult
 
   const wheels: WheelInfo[] = useMemo(() => {
@@ -67,6 +67,7 @@ export function Truck({position}: { position: Vector3Tuple }) {
 
   const chassisRef = useRef<RapierRigidBody>(null!)
   const wheelRefs = useRef(wheels.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
+  const axleRefs = useRef(wheels.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
 
   return (
     <group>
@@ -103,6 +104,22 @@ export function Truck({position}: { position: Vector3Tuple }) {
 
       {wheels.map((wheel, i) => (
         <React.Fragment key={i}>
+          {/* axle */}
+          <RigidBody
+            ref={axleRefs.current[i]}
+            position={vec3.add(wheel.axlePosition, position)}
+            colliders="cuboid"
+            mass={0.2}
+            collisionGroups={0x0004_0000}
+            scale={scale}
+          >
+            <mesh rotation={[Math.PI / 2, 0, 0]} >
+              <boxGeometry args={[0.3, 0.3, 0.3]} />
+              <meshStandardMaterial color="#FFFFFF" />
+            </mesh>
+          </RigidBody>
+
+
           {/* wheel */}
           <RigidBody
             ref={wheelRefs.current[i]}
@@ -121,24 +138,37 @@ export function Truck({position}: { position: Vector3Tuple }) {
             <CylinderCollider mass={0.5} friction={1.5} args={[0.125, 0.32]} rotation={[-Math.PI / 2, 0, 0]}/>
           </RigidBody>
 
-          {wheel.isSteered ? (
+          {!wheel.isSteered ? (
+            <FixedJoint
+              body={chassisRef}
+              wheel={axleRefs.current[i]}
+              body1Anchor={wheel.axlePosition}
+              body1LocalFrame={[0, 0, 0, 1]}
+              body2Anchor={[0, 0, 0]}
+              body2LocalFrame={[0, 0, 0, 1]}
+            />
+          ) : (
             <SteeredJoint
               body={chassisRef}
-              wheel={wheelRefs.current[i]}
+              wheel={axleRefs.current[i]}
               bodyAnchor={wheel.axlePosition}
               wheelAnchor={[0, 0, 0]}
               rotationAxis={[0, 1, 0]}
             />
-          ) : (
-            <AxleJoint
-              body={chassisRef}
-              wheel={wheelRefs.current[i]}
-              bodyAnchor={wheel.axlePosition}
-              wheelAnchor={[0, 0, 0]}
-              rotationAxis={[0, 0, 1]}
-              isDriven={wheel.isDriven}
-            />
           )}
+
+          {/* wheel to axle joint */}
+          <AxleJoint
+            body={axleRefs.current[i]}
+            wheel={wheelRefs.current[i]}
+            bodyAnchor={[0, 0, 0]}
+            wheelAnchor={[0, 0, 0]}
+            rotationAxis={[0, 0, 1]}
+            isDriven={wheel.isDriven}
+          />
+
+
+
         </React.Fragment>
       ))}
     </group>

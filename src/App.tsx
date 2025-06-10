@@ -1,28 +1,13 @@
-import './App.css'
 import { Canvas } from '@react-three/fiber'
 import { KeyboardControls, OrbitControls, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three';
 import { EffectComposer, Noise, Pixelation, Vignette } from '@react-three/postprocessing'
 import { Leva, useControls } from 'leva'
 import { useEffect, useRef } from "react";
-import { Physics, RigidBody, RapierRigidBody, type RigidBodyProps } from '@react-three/rapier'
+import { Physics, RigidBody, type RigidBodyProps } from '@react-three/rapier'
 import { Truck } from "./objects/Truck.tsx";
-
-const CONTROLS = {
-  forward: 'forward',
-  back: 'back',
-  left: 'left',
-  right: 'right',
-  brake: 'brake',
-}
-
-export const CONTROLS_MAP = [
-  { name: CONTROLS.forward, keys: ['ArrowUp', 'w', 'W'] },
-  { name: CONTROLS.back, keys: ['ArrowDown', 's', 'S'] },
-  { name: CONTROLS.left, keys: ['ArrowLeft', 'a', 'A'] },
-  { name: CONTROLS.right, keys: ['ArrowRight', 'd', 'D'] },
-  { name: CONTROLS.brake, keys: ['Space'] },
-]
+import { Trailer } from "./objects/Trailer.tsx";
+import {CONTROLS_MAP} from "./util/controls.ts";
 
 function Room(props: RigidBodyProps) {
   const group = useRef(null)
@@ -38,24 +23,6 @@ function Room(props: RigidBodyProps) {
       {...props}
       ref={group}
       type="fixed"
-    >
-      <primitive object={scene} />
-    </RigidBody>
-  )
-}
-
-function Trailer(props: RigidBodyProps) {
-  const { scene } = useGLTF('/models/trailer.gltf')
-  const rigid = useRef<RapierRigidBody>(null)
-
-  return (
-    <RigidBody
-      {...props}
-      ref={rigid}
-      linearDamping={0.8}
-      angularDamping={0.95}
-      friction={1}
-      restitution={0.1}
     >
       <primitive object={scene} />
     </RigidBody>
@@ -82,7 +49,6 @@ function App() {
         style={{ background: 'lightblue' }}
       >
         <Physics debug={debug}>
-
           <ambientLight intensity={0.3} />
           <directionalLight position={[1, 1, 1]} color={'white'} />
 
@@ -94,7 +60,7 @@ function App() {
           </RigidBody>
 
           <KeyboardControls map={CONTROLS_MAP}>
-            <Room  scale={20}/>
+            <Room scale={20}/>
 
             <Truck position={[16, 24, 0]} />
             <Trailer position={[20, 24, 0]} rotation={[0, Math.PI / 2, 0]} />
@@ -123,4 +89,3 @@ function App() {
 }
 
 export default App
-
