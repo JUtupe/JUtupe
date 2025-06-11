@@ -62,8 +62,8 @@ function App() {
           <KeyboardControls map={CONTROLS_MAP}>
             <Room scale={20}/>
 
-            <Truck position={[16, 24, 0]} />
-            <Trailer position={[20, 24, 0]} rotation={[0, Math.PI / 2, 0]} />
+            <Truck position={[17, 23, 0]} />
+            <Trailer position={[17, 23, 0]} rotation={[0, Math.PI / 2, 0]} />
           </KeyboardControls>
         </Physics>
 

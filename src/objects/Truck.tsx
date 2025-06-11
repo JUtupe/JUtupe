@@ -1,6 +1,6 @@
 import type {Vector3Tuple} from 'three'
 import * as THREE from 'three'
-import React, {createRef, type RefObject, useMemo, useRef} from 'react'
+import React, {createRef, type RefObject, useRef} from 'react'
 import {useGLTF} from '@react-three/drei'
 import type {GLTF} from 'three-stdlib'
 import {CylinderCollider, RapierRigidBody, RigidBody} from '@react-three/rapier'
@@ -26,44 +26,41 @@ type WheelInfo = {
   side: 'left' | 'right'
   isDriven: boolean
 }
+
 const axleY = 0
 const wheelY = 0
-
+const wheels: WheelInfo[] = [
+  {
+    axlePosition: [-1.13, axleY, 0.7],
+    wheelPosition: [-1.2, wheelY, 1],
+    isSteered: true,
+    side: 'left',
+    isDriven: false,
+  },
+  {
+    axlePosition: [-1.13, axleY, -0.7],
+    wheelPosition: [-1.2, wheelY, -1],
+    isSteered: true,
+    side: 'right',
+    isDriven: false,
+  },
+  {
+    axlePosition: [0.935, axleY, 0.7],
+    wheelPosition: [1.1, wheelY, 1],
+    isSteered: false,
+    side: 'left',
+    isDriven: true,
+  },
+  {
+    axlePosition: [0.935, axleY, -0.7],
+    wheelPosition: [1.1, wheelY, -1],
+    isSteered: false,
+    side: 'right',
+    isDriven: true,
+  },
+]
 export function Truck({position, scale}: { position: Vector3Tuple, scale?: number }) {
   const {nodes} = useGLTF('/models/truck.gltf') as unknown as GLTFResult
-
-  const wheels: WheelInfo[] = useMemo(() => {
-    return ([
-      {
-        axlePosition: [-1.13, axleY, 0.7],
-        wheelPosition: [-1.2, wheelY, 1],
-        isSteered: true,
-        side: 'left',
-        isDriven: false,
-      },
-      {
-        axlePosition: [-1.13, axleY, -0.7],
-        wheelPosition: [-1.2, wheelY, -1],
-        isSteered: true,
-        side: 'right',
-        isDriven: false,
-      },
-      {
-        axlePosition: [0.935, axleY, 0.7],
-        wheelPosition: [1.1, wheelY, 1],
-        isSteered: false,
-        side: 'left',
-        isDriven: true,
-      },
-      {
-        axlePosition: [0.935, axleY, -0.7],
-        wheelPosition: [1.1, wheelY, -1],
-        isSteered: false,
-        side: 'right',
-        isDriven: true,
-      },
-    ])
-  }, [])
 
   const chassisRef = useRef<RapierRigidBody>(null!)
   const wheelRefs = useRef(wheels.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
@@ -100,6 +97,13 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
             material={nodes.cuboid.material}
           />
         </group>
+
+        <RigidBody collisionGroups={0}>
+          <mesh position={[0.5, 0.55, 0]}>
+            <boxGeometry args={[0.2, 0.1, 0.2]}/>
+            <meshStandardMaterial color="#FFFFFF" visible={false}/>
+          </mesh>
+        </RigidBody>
       </RigidBody>
 
       {wheels.map((wheel, i) => (
@@ -115,7 +119,7 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
           >
             <mesh rotation={[Math.PI / 2, 0, 0]}>
               <boxGeometry args={[0.4, 0.3, 0.4]} />
-              <meshStandardMaterial color="#FFFFFF" visible={false} />
+              <meshStandardMaterial color="#FFFFFF" visible={false}/>
             </mesh>
           </RigidBody>
 

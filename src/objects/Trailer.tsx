@@ -35,36 +35,37 @@ type GLTFResult = GLTF & {
   materials: object
 }
 
+const wheelData = [
+  {
+    name: 'front_left_wheel',
+    position: [-0.656, 0.125, 4.75],
+    rotation: [0, 0, Math.PI / 2],
+    axleOffset: [-0.656, 0.125, 4.75],
+  },
+  {
+    name: 'back_left_wheel',
+    position: [-0.656, 0.125, 5.5],
+    rotation: [0, 0, Math.PI / 2],
+    axleOffset: [-0.656, 0.125, 5.5],
+  },
+  {
+    name: 'back_right_wheel',
+    position: [0.656, 0.125, 5.5],
+    rotation: [0, 0, -Math.PI / 2],
+    axleOffset: [0.656, 0.125, 5.5],
+  },
+  {
+    name: 'front_right_wheel',
+    position: [0.656, 0.125, 4.75],
+    rotation: [0, 0, -Math.PI / 2],
+    axleOffset: [0.656, 0.125, 4.75],
+  },
+];
+
 export function Trailer(props: RigidBodyProps) {
   const {nodes} = useGLTF('./models/trailer.gltf') as unknown as GLTFResult
   const rigid = useRef<RapierRigidBody>(null!);
   // Wheel positions and rotation info
-  const wheelData = [
-    {
-      name: 'front_left_wheel',
-      position: [-0.656, 0.125, 4.75],
-      rotation: [0, 0, Math.PI / 2],
-      axleOffset: [-0.656, 0.125, 4.75],
-    },
-    {
-      name: 'back_left_wheel',
-      position: [-0.656, 0.125, 5.5],
-      rotation: [0, 0, Math.PI / 2],
-      axleOffset: [-0.656, 0.125, 5.5],
-    },
-    {
-      name: 'back_right_wheel',
-      position: [0.656, 0.125, 5.5],
-      rotation: [0, 0, -Math.PI / 2],
-      axleOffset: [0.656, 0.125, 5.5],
-    },
-    {
-      name: 'front_right_wheel',
-      position: [0.656, 0.125, 4.75],
-      rotation: [0, 0, -Math.PI / 2],
-      axleOffset: [0.656, 0.125, 4.75],
-    },
-  ];
   const wheelRefs = useRef(wheelData.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
 
   return (
@@ -112,7 +113,8 @@ export function Trailer(props: RigidBodyProps) {
               />
             </group>
           </group>
-          <group name="leg" position={[0, 0.625, 1.563]} rotation={[0, 0, 0]}>
+          {/*<group name="leg" position={[0, 0.625, 1.563]} rotation={[0, 0, 0]}>*/}
+          <group name="leg" position={[0, 0.625, 1.563]} rotation={[-Math.PI/2, 0, 0]}>
             <mesh
               name="cuboid_5"
               geometry={nodes.cuboid_5.geometry}
