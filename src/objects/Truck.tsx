@@ -114,7 +114,7 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
             scale={scale}
           >
             <mesh rotation={[Math.PI / 2, 0, 0]}>
-              <boxGeometry args={[0.3, 0.3, 0.3]} />
+              <boxGeometry args={[0.4, 0.3, 0.4]} />
               <meshStandardMaterial color="#FFFFFF" visible={false} />
             </mesh>
           </RigidBody>
@@ -135,7 +135,7 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
               geometry={nodes.front_right_wheel.geometry}
               material={nodes.front_right_wheel.material}
             />
-            <CylinderCollider mass={0.5} friction={1.5} args={[0.125, 0.32]} rotation={[-Math.PI / 2, 0, 0]}/>
+            <CylinderCollider mass={0.5} friction={5} args={[0.125, 0.32]} rotation={[-Math.PI / 2, 0, 0]}/>
           </RigidBody>
 
           {!wheel.isSteered ? (
