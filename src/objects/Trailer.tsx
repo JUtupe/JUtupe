@@ -1,8 +1,7 @@
-import { AxleJoint } from '../util/joints';
-import { CylinderCollider } from '@react-three/rapier';
-import {useRef, createRef, type RefObject} from 'react'
+import {AxleJoint} from '../util/joints';
+import {CylinderCollider, RapierRigidBody, RigidBody, type RigidBodyProps} from '@react-three/rapier';
+import {createRef, type RefObject, useRef} from 'react'
 import {useGLTF} from '@react-three/drei'
-import {RapierRigidBody, RigidBody, type RigidBodyProps} from '@react-three/rapier';
 import type {GLTF} from "three-stdlib";
 import * as THREE from 'three'
 
@@ -71,14 +70,13 @@ export function Trailer(props: RigidBodyProps) {
   return (
     <RigidBody
       {...props}
-      ref={rigid}
       linearDamping={0.8}
       angularDamping={0.95}
       friction={1}
       restitution={0.1}
       colliders={false}
     >
-      <group name="root">
+      <RigidBody colliders={'trimesh'} ref={rigid} type={'fixed'}>
         <group name="trailer" position={[0, 0, 0.125]}>
           <group name="trailer_body" position={[0, 0, -0.125]}>
             <mesh
@@ -113,38 +111,6 @@ export function Trailer(props: RigidBodyProps) {
                 position={[0.438, 0.713, 6.188]}
               />
             </group>
-          </group>
-          <group name="trailer_wheels" position={[0, 0, 0.125]}>
-            {wheelData.map((wheel, i) => (
-              <RigidBody
-                key={wheel.name}
-                ref={wheelRefs.current[i]}
-                position={wheel.position as [number, number, number]}
-                colliders={false}
-                mass={0.2}
-                restitution={0}
-              >
-                <mesh
-                  name={wheel.name}
-                  geometry={nodes[wheel.name as keyof typeof nodes].geometry}
-                  material={nodes[wheel.name as keyof typeof nodes].material}
-                  rotation={wheel.rotation as [number, number, number]}
-                />
-                <CylinderCollider mass={0.5} friction={1.5} args={[0.125, 0.32]} rotation={[0, 0, -Math.PI / 2]} />
-              </RigidBody>
-            ))}
-            {/* Axle joints */}
-            {wheelData.map((wheel, i) => (
-              <AxleJoint
-                key={wheel.name + '-joint'}
-                body={rigid}
-                wheel={wheelRefs.current[i]}
-                bodyAnchor={wheel.axleOffset as [number, number, number]}
-                wheelAnchor={[0, 0, 0]}
-                rotationAxis={[1, 0, 0]}
-                isDriven={false}
-              />
-            ))}
           </group>
           <group name="leg" position={[0, 0.625, 1.563]} rotation={[0, 0, 0]}>
             <mesh
@@ -243,6 +209,38 @@ export function Trailer(props: RigidBodyProps) {
             />
           </group>
         </group>
+      </RigidBody>
+      <group name="trailer_wheels" position={[0, 0, 0.125]}>
+        {wheelData.map((wheel, i) => (
+          <RigidBody
+            key={wheel.name}
+            ref={wheelRefs.current[i]}
+            position={wheel.position as [number, number, number]}
+            colliders={false}
+            mass={0.2}
+            restitution={0}
+          >
+            <mesh
+              name={wheel.name}
+              geometry={nodes[wheel.name as keyof typeof nodes].geometry}
+              material={nodes[wheel.name as keyof typeof nodes].material}
+              rotation={wheel.rotation as [number, number, number]}
+            />
+            <CylinderCollider mass={0.5} friction={1.5} args={[0.125, 0.32]} rotation={[0, 0, -Math.PI / 2]}/>
+          </RigidBody>
+        ))}
+        {/* Axle joints */}
+        {wheelData.map((wheel, i) => (
+          <AxleJoint
+            key={wheel.name + '-joint'}
+            body={rigid}
+            wheel={wheelRefs.current[i]}
+            bodyAnchor={wheel.axleOffset as [number, number, number]}
+            wheelAnchor={[0, 0, 0]}
+            rotationAxis={[1, 0, 0]}
+            isDriven={false}
+          />
+        ))}
       </group>
     </RigidBody>
   )
