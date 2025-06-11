@@ -42,27 +42,27 @@ export function Trailer(props: RigidBodyProps) {
   const wheelData = [
     {
       name: 'front_left_wheel',
-      position: [-0.656, 0.125, 4.5],
+      position: [-0.656, 0.125, 4.75],
       rotation: [0, 0, Math.PI / 2],
-      axleOffset: [-0.656, 0.125, 4.5],
+      axleOffset: [-0.656, 0.125, 4.75],
     },
     {
       name: 'back_left_wheel',
-      position: [-0.656, 0.125, 5.25],
+      position: [-0.656, 0.125, 5.5],
       rotation: [0, 0, Math.PI / 2],
-      axleOffset: [-0.656, 0.125, 5.25],
+      axleOffset: [-0.656, 0.125, 5.5],
     },
     {
       name: 'back_right_wheel',
-      position: [0.656, 0.125, 5.25],
+      position: [0.656, 0.125, 5.5],
       rotation: [0, 0, -Math.PI / 2],
-      axleOffset: [0.656, 0.125, 5.25],
+      axleOffset: [0.656, 0.125, 5.5],
     },
     {
       name: 'front_right_wheel',
-      position: [0.656, 0.125, 4.5],
+      position: [0.656, 0.125, 4.75],
       rotation: [0, 0, -Math.PI / 2],
-      axleOffset: [0.656, 0.125, 4.5],
+      axleOffset: [0.656, 0.125, 4.75],
     },
   ];
   const wheelRefs = useRef(wheelData.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
@@ -76,7 +76,7 @@ export function Trailer(props: RigidBodyProps) {
       restitution={0.1}
       colliders={false}
     >
-      <RigidBody colliders={'trimesh'} ref={rigid} type={'fixed'}>
+      <RigidBody colliders={'trimesh'} ref={rigid}>
         <group name="trailer" position={[0, 0, 0.125]}>
           <group name="trailer_body" position={[0, 0, -0.125]}>
             <mesh

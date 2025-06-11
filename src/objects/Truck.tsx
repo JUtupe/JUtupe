@@ -26,8 +26,8 @@ type WheelInfo = {
   side: 'left' | 'right'
   isDriven: boolean
 }
-const axleY = -0.1
-const wheelY = -0.1
+const axleY = 0
+const wheelY = 0
 
 export function Truck({position, scale}: { position: Vector3Tuple, scale?: number }) {
   const {nodes} = useGLTF('/models/truck.gltf') as unknown as GLTFResult
@@ -35,29 +35,29 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
   const wheels: WheelInfo[] = useMemo(() => {
     return ([
       {
-        axlePosition: [-1.15, axleY, 0.7],
+        axlePosition: [-1.13, axleY, 0.7],
         wheelPosition: [-1.2, wheelY, 1],
         isSteered: true,
         side: 'left',
         isDriven: false,
       },
       {
-        axlePosition: [-1.15, axleY, -0.7],
+        axlePosition: [-1.13, axleY, -0.7],
         wheelPosition: [-1.2, wheelY, -1],
         isSteered: true,
         side: 'right',
         isDriven: false,
       },
       {
-        axlePosition: [0.9, axleY, 0.7],
-        wheelPosition: [1.2, wheelY, 1],
+        axlePosition: [0.935, axleY, 0.7],
+        wheelPosition: [1.1, wheelY, 1],
         isSteered: false,
         side: 'left',
         isDriven: true,
       },
       {
-        axlePosition: [0.9, axleY, -0.7],
-        wheelPosition: [1.2, wheelY, -1],
+        axlePosition: [0.935, axleY, -0.7],
+        wheelPosition: [1.1, wheelY, -1],
         isSteered: false,
         side: 'right',
         isDriven: true,
@@ -113,9 +113,9 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
             collisionGroups={0x0004_0000}
             scale={scale}
           >
-            <mesh rotation={[Math.PI / 2, 0, 0]} >
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
               <boxGeometry args={[0.3, 0.3, 0.3]} />
-              <meshStandardMaterial color="#FFFFFF" />
+              <meshStandardMaterial color="#FFFFFF" visible={false} />
             </mesh>
           </RigidBody>
 
@@ -166,8 +166,6 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
             rotationAxis={[0, 0, 1]}
             isDriven={wheel.isDriven}
           />
-
-
 
         </React.Fragment>
       ))}
