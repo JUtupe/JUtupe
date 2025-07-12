@@ -1,9 +1,11 @@
 import {AxleJoint} from '../util/joints';
-import {CylinderCollider, RapierRigidBody, RigidBody, type RigidBodyProps} from '@react-three/rapier';
-import {createRef, type RefObject, useRef} from 'react'
+import {CylinderCollider, RapierRigidBody, RigidBody } from '@react-three/rapier';
+import React, {createRef, type RefObject, useRef} from 'react'
 import {useGLTF} from '@react-three/drei'
 import type {GLTF} from "three-stdlib";
 import * as THREE from 'three'
+import {vec3} from "../util/vec.ts";
+import type {Vector3Tuple} from "three";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -62,22 +64,16 @@ const wheelData = [
   },
 ];
 
-export function Trailer(props: RigidBodyProps) {
+export function Trailer(props: { position: Vector3Tuple, rotation: Vector3Tuple, trailerJointRef?: React.RefObject<RapierRigidBody> }) {
   const {nodes} = useGLTF('./models/trailer.gltf') as unknown as GLTFResult
   const rigid = useRef<RapierRigidBody>(null!);
-  // Wheel positions and rotation info
+  const legRef = useRef<any>(null!);
+
   const wheelRefs = useRef(wheelData.map(() => createRef())) as RefObject<RefObject<RapierRigidBody>[]>
 
   return (
-    <RigidBody
-      {...props}
-      linearDamping={0.8}
-      angularDamping={0.95}
-      friction={1}
-      restitution={0.1}
-      colliders={false}
-    >
-      <RigidBody colliders={'trimesh'} ref={rigid}>
+    <group>
+      <RigidBody position={props.position} rotation={props.rotation} colliders={'trimesh'} type={'dynamic'} ref={rigid} mass={5}>
         <group name="trailer" position={[0, 0, 0.125]}>
           <group name="trailer_body" position={[0, 0, -0.125]}>
             <mesh
@@ -112,9 +108,12 @@ export function Trailer(props: RigidBodyProps) {
                 position={[0.438, 0.713, 6.188]}
               />
             </group>
+
+
           </group>
-          {/*<group name="leg" position={[0, 0.625, 1.563]} rotation={[0, 0, 0]}>*/}
-          <group name="leg" position={[0, 0.625, 1.563]} rotation={[-Math.PI/2, 0, 0]}>
+
+          <group ref={legRef} name="leg" position={[0, 0.625, 1.563]} rotation={[0, 0, 0]}>
+            {/*<group name="leg" position={[0, 0.625, 1.563]} rotation={[-Math.PI/2, 0, 0]}>*/}
             <mesh
               name="cuboid_5"
               geometry={nodes.cuboid_5.geometry}
@@ -134,6 +133,7 @@ export function Trailer(props: RigidBodyProps) {
               position={[0.438, -0.375, 0]}
             />
           </group>
+
           <group name="fence" position={[0, 0, -0.125]}>
             <mesh
               name="cuboid_8"
@@ -212,12 +212,20 @@ export function Trailer(props: RigidBodyProps) {
           </group>
         </group>
       </RigidBody>
-      <group name="trailer_wheels" position={[0, 0, 0.125]}>
-        {wheelData.map((wheel, i) => (
+
+      <RigidBody ref={props.trailerJointRef} position={vec3.add([0, 0.69, 0.6], props.position)} colliders={"cuboid"}>
+        <mesh >
+          <boxGeometry args={[1, 0.01, 1]}/>
+          <meshStandardMaterial color="#FFFFFF" visible={false}/>
+        </mesh>
+      </RigidBody>
+
+      {wheelData.map((wheel, i) => (
+        <React.Fragment key={wheel.name}>
+
           <RigidBody
-            key={wheel.name}
             ref={wheelRefs.current[i]}
-            position={wheel.position as [number, number, number]}
+            position={vec3.add(wheel.position as [number, number, number], props.position)}
             colliders={false}
             mass={0.2}
             restitution={0}
@@ -230,11 +238,8 @@ export function Trailer(props: RigidBodyProps) {
             />
             <CylinderCollider mass={0.5} friction={1.5} args={[0.125, 0.32]} rotation={[0, 0, -Math.PI / 2]}/>
           </RigidBody>
-        ))}
-        {/* Axle joints */}
-        {wheelData.map((wheel, i) => (
+
           <AxleJoint
-            key={wheel.name + '-joint'}
             body={rigid}
             wheel={wheelRefs.current[i]}
             bodyAnchor={wheel.axleOffset as [number, number, number]}
@@ -242,9 +247,9 @@ export function Trailer(props: RigidBodyProps) {
             rotationAxis={[1, 0, 0]}
             isDriven={false}
           />
-        ))}
-      </group>
-    </RigidBody>
+        </React.Fragment>
+      ))}
+    </group>
   )
 }
 

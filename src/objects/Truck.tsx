@@ -5,6 +5,7 @@ import {useGLTF} from '@react-three/drei'
 import type {GLTF} from 'three-stdlib'
 import {CylinderCollider, RapierRigidBody, RigidBody} from '@react-three/rapier'
 import {AxleJoint, FixedJoint, SteeredJoint} from '../util/joints'
+import {vec3} from "../util/vec.ts";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -59,7 +60,7 @@ const wheels: WheelInfo[] = [
     isDriven: true,
   },
 ]
-export function Truck({position, scale}: { position: Vector3Tuple, scale?: number }) {
+export function Truck({position, scale, trailerJointRef}: { position: Vector3Tuple, scale?: number, trailerJointRef?: React.RefObject<RapierRigidBody> }) {
   const {nodes} = useGLTF('/models/truck.gltf') as unknown as GLTFResult
 
   const chassisRef = useRef<RapierRigidBody>(null!)
@@ -69,7 +70,7 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
   return (
     <group>
       {/* chassis */}
-      <RigidBody ref={chassisRef} colliders="trimesh" type={'dynamic'} position={position} mass={5}>
+      <RigidBody ref={chassisRef} colliders="trimesh" position={position} mass={5}>
         <group rotation={[0, Math.PI / 2, 0]}>
           <mesh
             name="left_mirror"
@@ -98,12 +99,13 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
           />
         </group>
 
-        <RigidBody collisionGroups={0}>
-          <mesh position={[0.5, 0.55, 0]}>
-            <boxGeometry args={[0.2, 0.1, 0.2]}/>
-            <meshStandardMaterial color="#FFFFFF" visible={false}/>
-          </mesh>
-        </RigidBody>
+      </RigidBody>
+
+      <RigidBody ref={trailerJointRef} position={vec3.add([0.5, 0.505, 0], position)} colliders="cuboid">
+        <mesh>
+          <boxGeometry args={[1, 0.01, 1]}/>
+          <meshStandardMaterial color="#FFFFFF" visible={false}/>
+        </mesh>
       </RigidBody>
 
       {wheels.map((wheel, i) => (
@@ -122,7 +124,6 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
               <meshStandardMaterial color="#FFFFFF" visible={false}/>
             </mesh>
           </RigidBody>
-
 
           {/* wheel */}
           <RigidBody
@@ -175,10 +176,6 @@ export function Truck({position, scale}: { position: Vector3Tuple, scale?: numbe
       ))}
     </group>
   )
-}
-
-const vec3 = {
-  add: (a: Vector3Tuple, b: Vector3Tuple) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]] as Vector3Tuple,
 }
 
 useGLTF.preload('/truck.gltf')
