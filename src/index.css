@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: 'Audiowide';
+    src: url("/fonts/Audiowide-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    @apply bg-gray-900
+}
+
+@theme {
+    --font-audiowide: Audiowide, sans-serif;
+}
+
+@utility corner-cut-tr-* {
+    clip-path: polygon(0% 100%, 100% 100%, 100% calc(--value(integer) * 1px), calc(100% - calc(--value(integer) * 1px)) 0%, 0% 0%)
+}
+
+@utility corner-cut-bl-* {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, calc(--value(integer) * 1px) 100%, 0% calc(100% - calc(--value(integer) * 1px)));
+}
+
+@utility corner-cut-br-* {
+    clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - calc(--value(integer) * 1px)), calc(100% - calc(--value(integer) * 1px)) 100%, 0% 100%);
+}

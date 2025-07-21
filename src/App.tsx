@@ -1,246 +1,238 @@
-import './App.css'
-import {Canvas, useFrame} from '@react-three/fiber'
-import {OrbitControls, useAnimations, useGLTF} from '@react-three/drei'
-import * as THREE from 'three';
-import {EffectComposer, Noise, Pixelation, Vignette} from '@react-three/postprocessing'
-import {Leva, useControls} from 'leva'
-import {useEffect, useRef} from "react";
-import {Physics, RigidBody, RapierRigidBody, type RigidBodyProps} from '@react-three/rapier'
-import {TruckModel} from "./objects/Truck.tsx";
-import {useKeyboardControls} from "./hooks/useKeyboardControls.ts";
-import {Vector3} from "three";
-
-function Room(props: RigidBodyProps) {
-  const group = useRef(null)
-  const {scene, animations} = useGLTF('/models/room.gltf')
-  const {actions} = useAnimations(animations, group)
-
-  useEffect(() => {
-    actions['chairanimation']?.play()
-  }, [actions])
-
-  return (
-    <RigidBody
-      {...props}
-      ref={group}
-      type="fixed"
-    >
-      <primitive object={scene}/>
-    </RigidBody>
-  )
-}
-
-const FORCE_MULTIPLIER = 0.0001
-
-function Truck(props: RigidBodyProps) {
-  const {scene} = useGLTF('/models/truck.gltf')
-  const ref = useRef<THREE.Group>(null)
-  const rigid = useRef<RapierRigidBody>(null)
-
-  const controls = useKeyboardControls()
-
-  useEffect(() => {
-    if (rigid.current && controls.space) {
-      rigid.current.setLinvel({x: 0, y: 0, z: 0}, true)
-      rigid.current.resetForces(true)
-      rigid.current.resetTorques(true)
-      rigid.current.setRotation(new THREE.Quaternion(0, 0, 0, 1), true)
-      rigid.current.setTranslation(new THREE.Vector3(1, 1.14, 0), true)
-    }
-  }, [controls.space])
-
-  useEffect(() => {
-    if (rigid.current) {
-      rigid.current.setAdditionalMassProperties(rigid.current.mass(), new Vector3(0, -0.01, 0), new Vector3(0, 0, 0), {x: 0, y: 0, z: 0, w: 0}, true)
-    }
-  }, [rigid.current]);
-
-  const {maxSpeed} = useControls('Drive', {
-    maxSpeed: { value: 1, min: 0.1, max: 2, step: 0.1, label: 'Mak speed' },
-  })
-
-  const wheels = useRef<Record<string, THREE.Object3D>>({})
-  const wheelHolders = useRef<Record<string, THREE.Object3D>>({})
-  const steerAngleRef = useRef(0)
-
-  useEffect(() => {
-    const wheelsRoot = ref.current?.getObjectByName('wheels')
-    if (wheelsRoot) {
-      for (const holderName of [
-        'front_left_wheel_holder',
-        'front_right_wheel_holder'
-      ]) {
-        const holder = wheelsRoot.getObjectByName(holderName)
-        if (holder) {
-          wheelHolders.current[holderName] = holder
-        }
-      }
-      for (const name of [
-        'front_left_wheel',
-        'front_right_wheel',
-        'back_left_wheel',
-        'back_right_wheel'
-      ]) {
-        const obj = wheelsRoot.getObjectByName(name)
-        if (obj) {
-          wheels.current[name] = obj
-        }
-      }
-    }
-  }, [scene])
-
-  const wheelRotation = useRef(0)
-
-  useFrame(() => {
-    if (!rigid.current) return
-
-    const impulse = maxSpeed
-    let forward = 0
-    if (controls.w) forward += 1 * FORCE_MULTIPLIER
-    if (controls.s) forward -= 1 * FORCE_MULTIPLIER
-
-    const body = rigid.current
-    const quat = body.rotation()
-    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w))
-
-    let steerInput = 0
-    if (controls.a) steerInput += 1
-    if (controls.d) steerInput -= 1
-
-    const maxSteer = Math.PI / 7
-    const steerTarget = steerInput * maxSteer
-    steerAngleRef.current += (steerTarget - steerAngleRef.current) * 0.15
-
-    if (forward !== 0 && Math.abs(steerAngleRef.current) > 0.001) {
-      const turnRadius = 2.5 / Math.tan(steerAngleRef.current)
-      const angularVelocity = (forward * impulse) / turnRadius
-      const currentQuat = new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w)
-      const euler = new THREE.Euler().setFromQuaternion(currentQuat)
-      euler.y += angularVelocity
-      const newQuat = new THREE.Quaternion().setFromEuler(euler)
-      body.setRotation({x: newQuat.x, y: newQuat.y, z: newQuat.z, w: newQuat.w}, false)
-    }
-
-    if (forward !== 0) {
-      const force = dir.clone().multiplyScalar(impulse * forward)
-      body.applyImpulse({x: force.x, y: 0, z: force.z}, true)
-    }
-
-    const frontSteer = steerAngleRef.current
-    const holders = [
-      {holder: 'front_left_wheel_holder', wheel: 'front_left_wheel'},
-      {holder: 'front_right_wheel_holder', wheel: 'front_right_wheel'}
-    ]
-    for (const {holder} of holders) {
-      const h = wheelHolders.current[holder]
-      if (h) {
-        h.rotation.y = frontSteer
-      }
-    }
-
-    const linvel = body.linvel()
-    const velocity = new THREE.Vector3(linvel.x, 0, linvel.z)
-    const truckForward = dir.clone().setY(0).normalize()
-    const speed = -velocity.dot(truckForward)
-    const wheelCircumference = 1
-    const rotationDelta = (speed / wheelCircumference) * 2 * Math.PI
-    wheelRotation.current += rotationDelta
-
-    for (const name of [
-      'front_left_wheel',
-      'front_right_wheel',
-      'back_left_wheel',
-      'back_right_wheel'
-    ]) {
-      const wheel = wheels.current[name]
-      if (wheel) {
-        wheel.rotation.x = wheelRotation.current
-      }
-    }
-  })
-
-  return (
-    <RigidBody
-      {...props}
-      ref={rigid}
-      friction={0.7}
-      restitution={0.5}
-      colliders={'trimesh'}
-    >
-      <TruckModel ref={ref}/>
-    </RigidBody>
-  )
-}
-
-function Trailer(props: RigidBodyProps) {
-  const {scene} = useGLTF('/models/trailer.gltf')
-  const rigid = useRef<RapierRigidBody>(null)
-
-  return (
-    <RigidBody
-      {...props}
-      ref={rigid}
-      linearDamping={0.8}
-      angularDamping={0.95}
-      friction={1}
-      restitution={0.1}
-    >
-      <primitive object={scene}/>
-    </RigidBody>
-  )
-}
+import {Scene} from "./objects/Scene.tsx";
+import * as React from "react";
+import {cn} from "./lib/utils.ts";
+import {motion} from "motion/react";
+import {BriefcaseIcon, GithubIcon, GraduationCapIcon, LinkedinIcon, MailIcon} from "lucide-react";
+import {SiDiscord} from '@icons-pack/react-simple-icons';
 
 function App() {
-  const {grain, vignette, pixelation} = useControls('Effects', {
-    grain: {value: false, label: 'Grain'},
-    vignette: {value: false, label: 'Vignette'},
-    pixelation: {value: false, label: 'Pixelation'}
-  })
-
-  const {debug} = useControls('Physics', {
-    debug: {value: false, label: 'Debug Rigidbody'}
-  })
-
   return (
-    <div className={'h-screen w-screen'} style={{position: 'relative'}}>
-      <Leva collapsed/>
-      <Canvas
-        camera={{position: [-2, 2.5, 2], fov: 50}}
-        onCreated={({camera}) => camera.lookAt(0, 6, 0)}
-        shadows
-        style={{background: 'lightblue'}}
-      >
-        <Physics gravity={[0, -9.81, 0]} debug={debug}>
-          <ambientLight intensity={0.3}/>
-          <directionalLight position={[1, 1, 1]} color={'white'}/>
+    <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white"}>
+      <div className={"flex flex-col min-w-[348px] md:w-1/4"}>
+        <div
+          className={"flex flex-row justify-between font-audiowide border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
+          <div className={"flex flex-col"}>
+            <span className={"opacity-50"}>Fullstack<br/>developer</span>
+            <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
+          </div>
+          <div className={"bg-gray-900 aspect-3/4"}>
+            <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
+          </div>
+        </div>
+        <ContentBox
+          title={"Contact"}
+          extra={"CD-01"}
+          className={"corner-cut-tr-15 shrink-0"}
+          contentClassName={"space-y-2"}>
+          <ContactRow
+            icon={<MailIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"Mail"}
+            href={"mailto:contact@petryszyn.dev"}
+            target={'_blank'}/>
+          <ContactRow
+            icon={<LinkedinIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"LinkedIn"}
+            href={"https://www.linkedin.com/in/wpetryszyn/"}
+            target={'_blank'}/>
+          <ContactRow
+            icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"GitHub"}
+            href={"https://github.com/jutupe"}
+            target={'_blank'}/>
+          <ContactRow
+            icon={<SiDiscord color={"var(--color-rose-500)"} size={24}/>}
+            title={"Discord"}
+            href={"https://discord.com/users/314113513205268480"}
+            target={'_blank'}/>
+        </ContentBox>
+        <ContentBox className={"grow max-h-30 min-h-15"} contentClassName={"grid grid-cols-2 gap-2 overflow-y-auto"}>
+          <Project title={"Newbies.pl"}/>
+          <Project title={"Retromachina"}/>
+          <Project title={"Jeteo"}/>
+          <Project title={"AI training"}/>
+        </ContentBox>
+        <ContentBox
+          title={"Knowledge"}
+          extra={"CD-02"}
+          className={"corner-cut-tr-15 grow"}
+          contentClassName={"overflow-y-auto pt-0"}>
+          <table className={"table-auto border-spacing-y-2 border-separate w-full pb-4"}>
+            <tbody>
+            <SkillRow technology={"React Native"} level={5}/>
+            <SkillRow technology={"Nextjs"} level={4}/>
+            <SkillRow technology={"React"} level={4}/>
+            <SkillRow technology={"Docker"} level={3}/>
+            <SkillRow technology={"Kotlin"} level={5}/>
+            <SkillRow technology={"Spring"} level={4}/>
+            <SkillRow technology={"Nestjs"} level={3.5}/>
+            <SkillRow technology={"Figma"} level={3}/>
+            <SkillRow technology={"Rabbit"} level={3}/>
+            <SkillRow technology={"DevOps"} level={2.5}/>
+            <SkillRow technology={"PostgreSQL"} level={4}/>
+            </tbody>
+          </table>
+        </ContentBox>
+      </div>
+      <div className={"flex flex-col md:w-3/4 md:grid grid-rows-[minmax(0,1fr)_minmax(200px,1fr)] grid-cols-3"}>
+        <ContentBox
+          className={"col-span-3 row-span-4 corner-cut-bl-15 [background-size:20px_20px] [background-image:radial-gradient(#364153_1px,transparent_1px)]"}
+          contentClassName={"p-0 max-md:h-[calc(50vh)] relative"}>
+          <Scene/>
 
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-            <planeGeometry args={[20, 20]}/>
-            <meshStandardMaterial color={"lightgreen"} side={THREE.DoubleSide}/>
-          </mesh>
+          <div className={"absolute top-0 left-0 h-full flex flex-row gap-1"}>
+            <div className={"bg-[url('/images/warning.svg')] bg-repeat bg-size-[20px] w-3 h-full"}/>
+            <div className={"w-1 h-1/2 bg-amber-300 corner-cut-br-4"}/>
+            <div className={"mt-1 space-y-1"}>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+              <div className={"size-2 rounded-full border-1 border-amber-300"}/>
+            </div>
+          </div>
 
-          <Room/>
-          <Truck position={[1, 1.14, 0]} scale={0.05}/>
-          <Trailer position={[1.3, 1.14, 0]} scale={0.05} rotation={[0, Math.PI / 2, 0]}/>
-        </Physics>
+          <div
+            className={"text-xs bg-amber-300 corner-cut-bl-32 absolute top-0 right-0 p-1 pb-[7px] pl-5 text-gray-900/50"}>
+            THE ROOM
+          </div>
+          <div
+            className={"text-xs bg-amber-300 corner-cut-tr-32 absolute bottom-0 left-0 p-1 pt-[7px] pl-4 pr-5 text-gray-900/50"}>
+            where the cool stuff is being built
+          </div>
 
-        <OrbitControls
-          makeDefault
-          maxDistance={9}
-          minAzimuthAngle={-Infinity}
-          maxAzimuthAngle={Infinity}
-          minPolarAngle={-Math.PI / 2}
-          maxPolarAngle={Math.PI / 2 - 0.1}
-          target={[0, 0.9, 0]}
-        />
-        <EffectComposer>
-          <>
-            {vignette && <Vignette/>}
-            {pixelation && <Pixelation/>}
-            {grain && <Noise opacity={0.02}/>}
-          </>
-        </EffectComposer>
-      </Canvas>
+          <div className={"absolute bottom-0 right-0 p-2 hidden sm:block"}>
+            <div className={"flex flex-row gap-1"}>
+              <div className={"size-10 rounded-l-full animate-pulse bg-rose-500/50"}/>
+              <div className={"size-10 rounded-b-full animate-pulse bg-rose-500/50"}/>
+              <div className={"size-10 rounded-r-full animate-pulse bg-rose-500/50"}/>
+              <div className={"size-10 rounded-full bg-rose-500/50"}/>
+            </div>
+          </div>
+        </ContentBox>
+        <ContentBox className={"col-span-2"}>
+          <ExperienceRow
+            icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"RST Software"}
+            subtitle={"React Native Developer - Technical Team Leader"}/>
+          <ExperienceRow
+            icon={<GraduationCapIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"Merito University"}
+            subtitle={"Mobile applications engineer"}/>
+        </ContentBox>
+        <ContentBox
+          className={"bg-[url('/images/warning.svg')] bg-repeat bg-size-[50px]"}
+          contentClassName={"flex max-md:min-h-40 h-full items-center justify-center"}>
+          {/*<div className={"bg-gray-900 p-2"}>*/}
+          {/*  <div className={"relative group bg-rose-500/20 cursor-pointer border-b-4 border-rose-500"}>*/}
+          {/*    <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>*/}
+          {/*    <div className={"p-2 lg:p-4 lg:text-2xl text-rose-500"}>*/}
+          {/*      See more*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+        </ContentBox>
+      </div>
+    </div>
+  )
+}
+
+const ContactRow: React.FC<{
+  icon: React.ReactNode,
+  title: string,
+  href: string,
+  target?: string
+}> = ({icon, title, href, target}) => {
+  return (
+    <a href={href} target={target} className={"group font-bold flex flex-row space-x-1"}>
+      <div className={"border-rose-500 border-4 size-8 min-w-8 flex items-center justify-center"}>
+        {icon}
+      </div>
+
+      <div className={"relative border-b-4 border-rose-500 w-full"}>
+        <div className={"absolute -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+        <span>{title}</span>
+      </div>
+    </a>
+  )
+}
+
+const ContentBox: React.FC<{
+  title?: string,
+  extra?: string,
+  children?: React.ReactNode,
+  className?: string
+  contentClassName?: string
+}> = ({title, extra, children, className, contentClassName}) => {
+  return (
+    <div className={cn("bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
+      {title !== undefined && (
+        <div className={"flex justify-between pr-4 bg-amber-300 text-gray-900"}>
+          <span>
+            {title}
+          </span>
+
+          {extra !== undefined && (
+            <span className={"opacity-50"}>{extra}</span>
+          )}
+        </div>
+      )}
+
+      <div className={cn("p-2 size-full", contentClassName)}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const Project: React.FC<{
+  title: string,
+}> = ({title}) => {
+  return (
+    <div
+      className={"group relative flex flex-col gap-2 bg-rose-500/20 min-h-10 h-full w-full text-xs border-l-4 border-rose-500 corner-cut-br-15 cursor-pointer"}>
+      <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+      <span className={"z-10 p-1 text-rose-500 font-bold break-all "}>{title}</span>
+    </div>
+  )
+}
+
+const SkillRow: React.FC<{
+  technology: string,
+  level: number
+}> = ({technology, level}) => {
+  return (
+    <tr className={"group"}>
+      <td className={"text-xs pr-2"}>{technology}</td>
+      <td className={"border-1 border-rose-500 p-1 w-full"}>
+        <motion.div
+          className={"h-5 bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity duration-150"}
+          initial={{width: '0%'}}
+          whileInView={{width: `${level * 20}%`}}
+          viewport={{once: true}}/>
+      </td>
+    </tr>
+  )
+}
+
+const ExperienceRow: React.FC<{
+  icon: React.ReactNode,
+  title: string,
+  subtitle: string,
+}> = ({icon, title, subtitle}) => {
+  return (
+    <div className={"group flex flex-row items-center gap-2"}>
+      <div
+        className={"relative flex items-center justify-center h-8 w-12 corner-cut-bl-16 bg-rose-500/30 border-r-4 border-rose-500"}>
+        <div className={"absolute right-0 -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+
+        {icon}
+      </div>
+
+      <div>
+        <div>{title}</div>
+        <div className={"opacity-50 text-sm"}>{subtitle}</div>
+      </div>
     </div>
   )
 }
