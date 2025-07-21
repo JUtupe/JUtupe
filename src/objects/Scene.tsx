@@ -206,7 +206,7 @@ export const Scene: React.FC = () => {
 
   return (
     <div className={'w-full h-full relative'}>
-      <Leva collapsed/>
+      <Leva collapsed hidden/>
       <Canvas
         camera={{position: [-2, 2.5, 2], fov: 50}}
         onCreated={({camera}) => camera.lookAt(0, 6, 0)}
