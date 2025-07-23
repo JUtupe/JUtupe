@@ -11,6 +11,14 @@ html {
     @apply bg-gray-900
 }
 
+* {
+    @apply [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-amber-300/50 hover:[&::-webkit-scrollbar-thumb]:bg-amber-300
+}
+
+body {
+    overflow-x: hidden;
+}
+
 @theme {
     --font-audiowide: Audiowide, sans-serif;
 }
