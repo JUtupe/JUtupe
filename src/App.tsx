@@ -15,7 +15,7 @@ function App() {
             <span className={"opacity-50"}>Fullstack<br/>developer</span>
             <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
           </div>
-          <div className={"bg-gray-900 aspect-3/4"}>
+          <div className={"bg-gray-900 aspect-3/4 h-44"}>
             <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
           </div>
         </div>
@@ -45,7 +45,7 @@ function App() {
             href={"https://discord.com/users/314113513205268480"}
             target={'_blank'}/>
         </ContentBox>
-        <ContentBox className={"grow max-h-30 min-h-15"} contentClassName={"grid grid-cols-2 gap-2 overflow-y-auto"}>
+        <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
           <Project title={"Newbies.pl"}/>
           <Project title={"Retromachina"}/>
           <Project title={"Jeteo"}/>
@@ -145,7 +145,7 @@ const ContactRow: React.FC<{
 }> = ({icon, title, href, target}) => {
   return (
     <a href={href} target={target} className={"group font-bold flex flex-row space-x-1"}>
-      <div className={"border-rose-500 border-4 size-8 min-w-8 flex items-center justify-center"}>
+      <div className={"border-rose-500 border-4 size-8 min-w-8 p-1 flex items-center justify-center"}>
         {icon}
       </div>
 
@@ -223,7 +223,7 @@ const ExperienceRow: React.FC<{
   return (
     <div className={"group flex flex-row items-center gap-2"}>
       <div
-        className={"relative flex items-center justify-center h-8 w-12 corner-cut-bl-16 bg-rose-500/30 border-r-4 border-rose-500"}>
+        className={"relative flex items-center justify-center h-8 w-12 min-w-12 corner-cut-bl-16 bg-rose-500/30 border-r-4 border-rose-500"}>
         <div className={"absolute right-0 -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
 
         {icon}
