@@ -1,9 +1,12 @@
 import {Scene} from "./objects/Scene.tsx";
-import * as React from "react";
-import {cn} from "./lib/utils.ts";
-import {motion} from "motion/react";
 import {BriefcaseIcon, GithubIcon, GraduationCapIcon, LinkedinIcon, MailIcon} from "lucide-react";
 import {SiDiscord} from '@icons-pack/react-simple-icons';
+import ContentBox from "./components/ContentBox";
+import Project from "./components/Project";
+import SkillRow from "./components/SkillRow";
+import ExperienceRow from "./components/ExperienceRow";
+import ContactRow from "./components/ContactRow.tsx";
+import {projects} from "./lib/projects.tsx";
 
 function App() {
   return (
@@ -46,10 +49,9 @@ function App() {
             target={'_blank'}/>
         </ContentBox>
         <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
-          <Project title={"Newbies.pl"}/>
-          <Project title={"Retromachina"}/>
-          <Project title={"Jeteo"}/>
-          <Project title={"AI training"}/>
+          {projects.map((project) => (
+            <Project title={project.title} key={project.title} onClick={() => {}}/>
+          ))}
         </ContentBox>
         <ContentBox
           title={"Knowledge"}
@@ -137,105 +139,4 @@ function App() {
   )
 }
 
-const ContactRow: React.FC<{
-  icon: React.ReactNode,
-  title: string,
-  href: string,
-  target?: string
-}> = ({icon, title, href, target}) => {
-  return (
-    <a href={href} target={target} className={"group font-bold flex flex-row space-x-1"}>
-      <div className={"border-rose-500 border-4 size-8 min-w-8 p-1 flex items-center justify-center"}>
-        {icon}
-      </div>
-
-      <div className={"relative border-b-4 border-rose-500 w-full"}>
-        <div className={"absolute -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-        <span>{title}</span>
-      </div>
-    </a>
-  )
-}
-
-const ContentBox: React.FC<{
-  title?: string,
-  extra?: string,
-  children?: React.ReactNode,
-  className?: string
-  contentClassName?: string
-}> = ({title, extra, children, className, contentClassName}) => {
-  return (
-    <div className={cn("bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
-      {title !== undefined && (
-        <div className={"flex justify-between pr-4 bg-amber-300 text-gray-900"}>
-          <span>
-            {title}
-          </span>
-
-          {extra !== undefined && (
-            <span className={"opacity-50"}>{extra}</span>
-          )}
-        </div>
-      )}
-
-      <div className={cn("p-2 size-full", contentClassName)}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-const Project: React.FC<{
-  title: string,
-}> = ({title}) => {
-  return (
-    <div
-      className={"group relative flex flex-col gap-2 bg-rose-500/20 min-h-10 h-full w-full text-xs border-l-4 border-rose-500 corner-cut-br-15 cursor-pointer"}>
-      <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-      <span className={"z-10 p-1 text-rose-500 font-bold break-all "}>{title}</span>
-    </div>
-  )
-}
-
-const SkillRow: React.FC<{
-  technology: string,
-  level: number
-}> = ({technology, level}) => {
-  return (
-    <tr className={"group"}>
-      <td className={"text-xs pr-2"}>{technology}</td>
-      <td className={"border-1 border-rose-500 p-1 w-full"}>
-        <motion.div
-          className={"h-5 bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity duration-150"}
-          initial={{width: '0%'}}
-          whileInView={{width: `${level * 20}%`}}
-          viewport={{once: true}}/>
-      </td>
-    </tr>
-  )
-}
-
-const ExperienceRow: React.FC<{
-  icon: React.ReactNode,
-  title: string,
-  subtitle: string,
-}> = ({icon, title, subtitle}) => {
-  return (
-    <div className={"group flex flex-row items-center gap-2"}>
-      <div
-        className={"relative flex items-center justify-center h-8 w-12 min-w-12 corner-cut-bl-16 bg-rose-500/30 border-r-4 border-rose-500"}>
-        <div className={"absolute right-0 -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-
-        {icon}
-      </div>
-
-      <div>
-        <div>{title}</div>
-        <div className={"opacity-50 text-sm"}>{subtitle}</div>
-      </div>
-    </div>
-  )
-}
-
 export default App
-
