@@ -7,8 +7,13 @@ import SkillRow from "./components/SkillRow";
 import ExperienceRow from "./components/ExperienceRow";
 import ContactRow from "./components/ContactRow.tsx";
 import {projects} from "./lib/projects.tsx";
+import {useState} from "react";
+import {AnimatePresence} from "motion/react";
+import ProjectModal from "./components/ProjectModal.tsx";
 
 function App() {
+  const [modalProjectId, setModalProjectId] = useState<string | null>(null);
+
   return (
     <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white"}>
       <div className={"flex flex-col min-w-[348px] md:w-1/4"}>
@@ -50,7 +55,12 @@ function App() {
         </ContentBox>
         <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
           {projects.map((project) => (
-            <Project title={project.title} key={project.title} onClick={() => {}}/>
+            <Project
+              title={project.title}
+              key={project.title}
+              onClick={() => {
+                setModalProjectId(project.id)
+              }}/>
           ))}
         </ContentBox>
         <ContentBox
@@ -135,6 +145,13 @@ function App() {
           {/*</div>*/}
         </ContentBox>
       </div>
+      <AnimatePresence>
+        {modalProjectId && (
+          <ProjectModal projectId={modalProjectId} onDismiss={() => {
+            setModalProjectId(null)
+          }}/>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
