@@ -204,12 +204,24 @@ export const Scene: React.FC = () => {
     debug: {value: false, label: 'Debug Rigidbody'}
   })
 
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
   return (
-    <div className={'w-full h-full relative'}>
+    <div className={'w-full h-full relative select-none'}>
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="relative h-16 w-16 flex items-center justify-center">
+            <div className="absolute animate-spin rounded-full h-16 w-16 border-4 border-amber-300 border-t-transparent" style={{animationDuration: '1.2s'}} />
+            <div className="absolute animate-spin-reverse rounded-full h-10 w-10 border-4 border-amber-300 border-b-transparent" style={{animationDuration: '1.2s'}} />
+          </div>
+        </div>
+      )}
+
       <Leva collapsed hidden/>
+
       <Canvas
         camera={{position: [-2, 2.5, 2], fov: 50}}
-        onCreated={({camera}) => camera.lookAt(0, 6, 0)}
+        onCreated={({camera}) => {camera.lookAt(0, 6, 0); setIsLoaded(true);}}
         shadows
       >
         <Physics gravity={[0, -9.81, 0]} debug={debug}>

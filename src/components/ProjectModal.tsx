@@ -30,7 +30,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
 
   return (
     <Backdrop onDismiss={onDismiss}>
-      <motion.div className={"w-full md:w-2/3 bg-gray-900 h-10 fixed md:relative bottom-0"}>
+      <motion.div
+        className={"w-full md:w-2/3 bg-gray-900 h-10 fixed md:relative bottom-0"}
+      >
         <motion.div className={"w-1 bg-amber-300 bottom-0 absolute"} initial={{height: '0%'}} animate={{height: '100%'}}/>
         <div>
           {project?.title}
