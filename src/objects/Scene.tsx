@@ -9,6 +9,7 @@ import {useEffect, useRef} from "react";
 import {useKeyboardControls} from "../hooks/useKeyboardControls.ts";
 import {Vector3} from "three";
 import {TruckModel} from "./Truck.tsx";
+import {useMultiKeyPress} from "../hooks/useMultiKeyPress";
 
 
 function Room(props: RigidBodyProps) {
@@ -205,19 +206,21 @@ export const Scene: React.FC = () => {
   })
 
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const debugEnabled = useMultiKeyPress('Shift', 3);
 
   return (
     <div className={'w-full h-full relative select-none'}>
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="relative h-16 w-16 flex items-center justify-center">
+            <div className="absolute animate-spin-reverse rounded-full h-20 w-20 border-4 border-amber-300 border-b-transparent" style={{animationDuration: '1.2s'}} />
             <div className="absolute animate-spin rounded-full h-16 w-16 border-4 border-amber-300 border-t-transparent" style={{animationDuration: '1.2s'}} />
-            <div className="absolute animate-spin-reverse rounded-full h-10 w-10 border-4 border-amber-300 border-b-transparent" style={{animationDuration: '1.2s'}} />
+            <div className="absolute animate-spin-reverse rounded-full h-10 w-10 border-12 border-amber-300 border-b-transparent" style={{animationDuration: '1.2s'}} />
           </div>
         </div>
       )}
 
-      <Leva collapsed hidden/>
+      <Leva hidden={!debugEnabled}/>
 
       <Canvas
         camera={{position: [-2, 2.5, 2], fov: 50}}
@@ -227,12 +230,10 @@ export const Scene: React.FC = () => {
         <Physics gravity={[0, -9.81, 0]} debug={debug}>
           <ambientLight intensity={0.3}/>
           <directionalLight position={[1, 1, 1]} color={'white'}/>
-
           <Room/>
           <Truck position={[1, 1.14, 0]} scale={0.05}/>
           <Trailer position={[1.3, 1.14, 0]} scale={0.05} rotation={[0, Math.PI / 2, 0]}/>
         </Physics>
-
         <OrbitControls
           makeDefault
           maxDistance={9}
