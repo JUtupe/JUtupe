@@ -1,6 +1,5 @@
 import {Scene} from "./objects/Scene.tsx";
 import {BriefcaseIcon, GithubIcon, GraduationCapIcon, LinkedinIcon, MailIcon} from "lucide-react";
-import {SiDiscord} from '@icons-pack/react-simple-icons';
 import ContentBox from "./components/ContentBox";
 import Project from "./components/Project";
 import SkillRow from "./components/SkillRow";
@@ -47,11 +46,6 @@ function App() {
             icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"GitHub"}
             href={"https://github.com/jutupe"}
-            target={'_blank'}/>
-          <ContactRow
-            icon={<SiDiscord color={"var(--color-rose-500)"} size={24}/>}
-            title={"Discord"}
-            href={"https://discord.com/users/314113513205268480"}
             target={'_blank'}/>
         </ContentBox>
         <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
