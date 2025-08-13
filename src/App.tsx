@@ -10,6 +10,7 @@ import {projects} from "./lib/projects.tsx";
 import {useState} from "react";
 import {AnimatePresence} from "motion/react";
 import ProjectModal from "./components/ProjectModal.tsx";
+import RedDots from "./components/RedDots.tsx";
 
 function App() {
   const [modalProjectId, setModalProjectId] = useState<string | null>(null);
@@ -114,12 +115,7 @@ function App() {
           </div>
 
           <div className={"absolute bottom-0 right-0 p-2 hidden sm:block"}>
-            <div className={"flex flex-row gap-1"}>
-              <div className={"size-10 rounded-l-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-b-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-r-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-full bg-rose-500/50"}/>
-            </div>
+            <RedDots/>
           </div>
         </ContentBox>
         <ContentBox className={"col-span-2"}>
