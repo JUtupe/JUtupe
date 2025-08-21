@@ -1,12 +1,14 @@
 import {cn} from "../lib/utils.ts";
+import * as React from "react";
 
 const ContentBox: React.FC<{
   title?: string,
   extra?: string,
   children?: React.ReactNode,
   className?: string
-  contentClassName?: string
-}> = ({title, extra, children, className, contentClassName}) => {
+  contentClassName?: string,
+  contentRef?: React.Ref<HTMLDivElement>
+}> = ({title, extra, children, className, contentClassName, contentRef}) => {
   return (
     <div className={cn("bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
       {title !== undefined && (
@@ -21,7 +23,7 @@ const ContentBox: React.FC<{
         </div>
       )}
 
-      <div className={cn("p-2 size-full", contentClassName)}>
+      <div ref={contentRef} className={cn("p-2 size-full", contentClassName)}>
         {children}
       </div>
     </div>

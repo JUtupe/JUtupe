@@ -6,19 +6,24 @@ import SkillRow from "./components/SkillRow";
 import ExperienceRow from "./components/ExperienceRow";
 import ContactRow from "./components/ContactRow.tsx";
 import {projects} from "./lib/projects.tsx";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import {AnimatePresence} from "motion/react";
 import ProjectModal from "./components/ProjectModal.tsx";
 import RedDots from "./components/RedDots.tsx";
+import useMediaQuery from "./hooks/useMediaQuery";
 
 function App() {
   const [modalProjectId, setModalProjectId] = useState<string | null>(null);
 
+  const knowledgeRef = useRef<HTMLDivElement>(null!);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const rowStagger = isDesktop ? 0.08 : 0;
+
   return (
-    <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white"}>
+    <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white font-audiowide"}>
       <div className={"flex flex-col min-w-[348px] md:w-1/4"}>
         <div
-          className={"flex flex-row justify-between font-audiowide border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
+          className={"flex flex-row justify-between border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
           <div className={"flex flex-col"}>
             <span className={"opacity-50"}>Fullstack<br/>developer</span>
             <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
@@ -51,8 +56,8 @@ function App() {
         <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
           {projects.map((project) => (
             <Project
-              title={project.title}
-              key={project.title}
+              id={project.id}
+              key={project.id}
               onClick={() => {
                 setModalProjectId(project.id)
               }}/>
@@ -62,20 +67,22 @@ function App() {
           title={"Knowledge"}
           extra={"CD-02"}
           className={"corner-cut-tr-15 grow"}
-          contentClassName={"overflow-y-auto pt-0"}>
+          contentClassName={"overflow-y-auto pt-0"}
+          contentRef={knowledgeRef}
+        >
           <table className={"table-auto border-spacing-y-2 border-separate w-full pb-4"}>
             <tbody>
-            <SkillRow technology={"React Native"} level={5}/>
-            <SkillRow technology={"Nextjs"} level={4}/>
-            <SkillRow technology={"React"} level={4}/>
-            <SkillRow technology={"Docker"} level={3}/>
-            <SkillRow technology={"Kotlin"} level={5}/>
-            <SkillRow technology={"Spring"} level={4}/>
-            <SkillRow technology={"Nestjs"} level={3.5}/>
-            <SkillRow technology={"Figma"} level={3}/>
-            <SkillRow technology={"Rabbit"} level={3}/>
-            <SkillRow technology={"DevOps"} level={2.5}/>
-            <SkillRow technology={"PostgreSQL"} level={4}/>
+              <SkillRow technology={"React Native"} level={5} viewportRoot={knowledgeRef} order={0} stagger={rowStagger}/>
+              <SkillRow technology={"Nextjs"} level={4} viewportRoot={knowledgeRef} order={1} stagger={rowStagger}/>
+              <SkillRow technology={"React"} level={4} viewportRoot={knowledgeRef} order={2} stagger={rowStagger}/>
+              <SkillRow technology={"Docker"} level={3} viewportRoot={knowledgeRef} order={3} stagger={rowStagger}/>
+              <SkillRow technology={"Kotlin"} level={5} viewportRoot={knowledgeRef} order={4} stagger={rowStagger}/>
+              <SkillRow technology={"Spring"} level={4} viewportRoot={knowledgeRef} order={5} stagger={rowStagger}/>
+              <SkillRow technology={"Nestjs"} level={3.5} viewportRoot={knowledgeRef} order={6} stagger={rowStagger}/>
+              <SkillRow technology={"Figma"} level={3} viewportRoot={knowledgeRef} order={7} stagger={rowStagger}/>
+              <SkillRow technology={"Rabbit"} level={3} viewportRoot={knowledgeRef} order={8} stagger={rowStagger}/>
+              <SkillRow technology={"DevOps"} level={2.5} viewportRoot={knowledgeRef} order={9} stagger={rowStagger}/>
+              <SkillRow technology={"PostgreSQL"} level={4} viewportRoot={knowledgeRef} order={10} stagger={rowStagger}/>
             </tbody>
           </table>
         </ContentBox>
