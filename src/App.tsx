@@ -6,18 +6,44 @@ import SkillRow from "./components/SkillRow";
 import ExperienceRow from "./components/ExperienceRow";
 import ContactRow from "./components/ContactRow.tsx";
 import {projects} from "./lib/projects.tsx";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {AnimatePresence} from "motion/react";
 import ProjectModal from "./components/ProjectModal.tsx";
 import RedDots from "./components/RedDots.tsx";
 import useMediaQuery from "./hooks/useMediaQuery";
+import { PowerGlitch } from 'powerglitch';
 
 function App() {
   const [modalProjectId, setModalProjectId] = useState<string | null>(null);
 
   const knowledgeRef = useRef<HTMLDivElement>(null!);
+  const photoRef = useRef<HTMLDivElement>(null!);
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const rowStagger = isDesktop ? 0.08 : 0;
+
+  useEffect(() => {
+    if (!photoRef.current) return;
+    const controller = PowerGlitch.glitch(photoRef.current, {
+      playMode: 'manual',
+      createContainers: true,
+      hideOverflow: true,
+      timing: { duration: 450, iterations: 1 },
+      glitchTimeSpan: { start: 0, end: 1 },
+      slice: { count: 8, velocity: 10, minHeight: 0.02, maxHeight: 0.15, hueRotate: true },
+      pulse: false
+    });
+    const el = photoRef.current;
+    const trigger = () => controller.startGlitch()
+
+    el.addEventListener('mouseenter', trigger);
+    el.addEventListener('click', trigger);
+
+    return () => {
+      el.removeEventListener('mouseenter', trigger);
+      el.removeEventListener('click', trigger);
+      controller.stopGlitch()
+    };
+  }, []);
 
   return (
     <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white font-audiowide"}>
@@ -28,7 +54,7 @@ function App() {
             <span className={"opacity-50"}>Fullstack<br/>developer</span>
             <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
           </div>
-          <div className={"bg-gray-900 aspect-3/4 h-44"}>
+          <div ref={photoRef} className={"bg-gray-900 aspect-3/4 h-44"}>
             <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
           </div>
         </div>
