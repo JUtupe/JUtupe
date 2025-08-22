@@ -31,39 +31,66 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
   return (
     <Backdrop onDismiss={onDismiss}>
       <motion.div
-        className={"w-full md:w-2/3 min-h-10 fixed md:relative bottom-0 bg-gray-900"}
-        onClick={(e) => {e.stopPropagation()}}
+        layoutId={`project-card-${project.id}`}
+        transition={{duration: 0.1, ease: 'linear'}}
+        className={"w-full md:w-2/3 min-h-10 fixed md:relative bottom-0 bg-gray-900 corner-cut-tr-15"}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
       >
-        <motion.div
-          layoutId={`project-card-${project.id}`}
-          transition={{duration: 0.1, ease: 'linear'}}
-          className={"group relative flex flex-col gap-2 bg-rose-500/20 min-h-10 w-full text-xs border-l-4 border-rose-500 corner-cut-br-15"}
-        >
-          <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-          <div className={"z-10"}>
+        <div className={"bg-rose-500/20 space-y-2"}>
+          <motion.div
+            className={"group relative flex flex-col gap-2 min-h-10 w-full text-xs border-l-4 border-rose-500"}
+          >
+            <div className={"-z-10 absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
             <span className={"p-1 text-rose-500 font-bold break-all"}>{project.title}</span>
 
             {project.description && (
-              <div className={"p-1 py-2"}>
+              <div className={"p-1"}>
                 {project.description}
               </div>
             )}
 
-            {project.images && project.images.length > 0 && (
-              <div className={"flex flex-row gap-2 p-1"}>
+          </motion.div>
+
+          {project.link && (
+            <a
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={"p-1 text-rose-500 hover:underline"}
+            >
+              Visit project
+            </a>
+          )}
+
+          {project.images && project.images.length > 0 && (
+            <div>
+              <span className={"p-1 text-xs"}>Gallery:</span>
+              <div className={"flex flex-row gap-2 p-1 overflow-x-scroll"}>
                 {project.images.map((image, index) => (
                   <img
                     key={index}
                     src={image}
                     alt={`${project.title} image ${index + 1}`}
-                    className={"w-full h-auto rounded-md"}
+                    className={"h-40 rounded-md"}
                   />
                 ))}
               </div>
-            )}
+            </div>
+          )}
 
-          </div>
-        </motion.div>
+          {project.technologies && project.technologies.length > 0 && (
+            <div className={"p-1"}>
+              <span className={"text-xs"}>Technologies used:</span>
+              <ul className={"list-disc pl-5 text-xs"}>
+                {project.technologies.map((tech, index) => (
+                  <li key={index} className={"text-rose-500"}>{tech}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </motion.div>
     </Backdrop>
   )
