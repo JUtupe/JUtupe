@@ -1,7 +1,8 @@
-interface Project {
+type Project = {
   id: string;
   title: string;
   description?: string;
+  about?: string;
   link?: string;
   images: string[];
   technologies?: string[];

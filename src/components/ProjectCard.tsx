@@ -1,8 +1,8 @@
 import * as React from "react";
 import {motion} from "motion/react";
-import {projects} from "../lib/projects.tsx";
+import {projects} from "../lib/projects.ts";
 
-const Project: React.FC<{
+const ProjectCard: React.FC<{
   id: string,
   onClick?: () => void,
 }> = ({id, onClick}) => {
@@ -18,7 +18,6 @@ const Project: React.FC<{
       onClick={onClick}
       layoutId={`project-card-${id}`}
       transition={{duration: 0.1, ease: 'linear'}}
-
     >
       <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
       <span className={"z-10 p-1 text-rose-500 font-bold break-all "}>{project.title}</span>
@@ -26,4 +25,4 @@ const Project: React.FC<{
   )
 }
 
-export default Project;
+export default ProjectCard;

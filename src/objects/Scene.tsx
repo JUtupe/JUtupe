@@ -9,7 +9,7 @@ import {useEffect, useRef} from "react";
 import {useKeyboardControls} from "../hooks/useKeyboardControls.ts";
 import {Vector3} from "three";
 import {TruckModel} from "./Truck.tsx";
-import {useMultiKeyPress} from "../hooks/useMultiKeyPress";
+import {useMultiKeyPress} from "../hooks/useMultiKeyPress.ts";
 
 
 function Room(props: RigidBodyProps) {

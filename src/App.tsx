@@ -1,17 +1,29 @@
-import {Scene} from "./objects/Scene.tsx";
+import {Scene} from "./objects/Scene";
 import {BriefcaseIcon, GithubIcon, GraduationCapIcon, LinkedinIcon, MailIcon} from "lucide-react";
 import ContentBox from "./components/ContentBox";
-import Project from "./components/Project";
+import ProjectCard from "./components/ProjectCard.tsx";
 import SkillRow from "./components/SkillRow";
 import ExperienceRow from "./components/ExperienceRow";
-import ContactRow from "./components/ContactRow.tsx";
-import {projects} from "./lib/projects.tsx";
+import ContactRow from "./components/ContactRow";
+import {projects} from "./lib/projects";
 import {useEffect, useRef, useState} from "react";
 import {AnimatePresence} from "motion/react";
-import ProjectModal from "./components/ProjectModal.tsx";
-import RedDots from "./components/RedDots.tsx";
+import ProjectModal from "./components/ProjectModal";
+import RedDots from "./components/RedDots";
 import useMediaQuery from "./hooks/useMediaQuery";
-import { PowerGlitch } from 'powerglitch';
+import {type GlitchPartialOptions, PowerGlitch} from 'powerglitch';
+import {skills} from "./lib/skills.ts";
+
+const SEE_MORE_ENABLED = false;
+const GLITCH_SETTINGS: GlitchPartialOptions = {
+  playMode: 'manual',
+  createContainers: true,
+  hideOverflow: true,
+  timing: {duration: 450, iterations: 1},
+  glitchTimeSpan: {start: 0, end: 1},
+  slice: {count: 8, velocity: 10, minHeight: 0.02, maxHeight: 0.15, hueRotate: false},
+  pulse: false
+}
 
 function App() {
   const [modalProjectId, setModalProjectId] = useState<string | null>(null);
@@ -23,15 +35,7 @@ function App() {
 
   useEffect(() => {
     if (!photoRef.current) return;
-    const controller = PowerGlitch.glitch(photoRef.current, {
-      playMode: 'manual',
-      createContainers: true,
-      hideOverflow: true,
-      timing: { duration: 450, iterations: 1 },
-      glitchTimeSpan: { start: 0, end: 1 },
-      slice: { count: 8, velocity: 10, minHeight: 0.02, maxHeight: 0.15, hueRotate: true },
-      pulse: false
-    });
+    const controller = PowerGlitch.glitch(photoRef.current, GLITCH_SETTINGS);
     const el = photoRef.current;
     const trigger = () => controller.startGlitch()
 
@@ -43,6 +47,22 @@ function App() {
       el.removeEventListener('click', trigger);
       controller.stopGlitch()
     };
+  }, []);
+
+  useEffect(() => {
+    if (!photoRef.current) return;
+
+    const randomInterval = () => Math.random() * (10000 - 5000) + 5000;
+    const controller = PowerGlitch.glitch(photoRef.current, GLITCH_SETTINGS);
+
+    const interval = setInterval(() => {
+      controller.startGlitch()
+    }, randomInterval());
+
+    return () => {
+      clearInterval(interval);
+      controller.stopGlitch()
+    }
   }, []);
 
   return (
@@ -58,15 +78,11 @@ function App() {
             <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
           </div>
         </div>
-        <ContentBox
-          title={"Contact"}
-          extra={"CD-01"}
-          className={"corner-cut-tr-15 shrink-0"}
-          contentClassName={"space-y-2"}>
+        <div className={"shrink-0 space-y-2 p-2"}>
           <ContactRow
-            icon={<MailIcon color={"var(--color-rose-500)"} size={24}/>}
-            title={"Mail"}
-            href={"mailto:contact@petryszyn.dev"}
+            icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"GitHub"}
+            href={"https://github.com/jutupe"}
             target={'_blank'}/>
           <ContactRow
             icon={<LinkedinIcon color={"var(--color-rose-500)"} size={24}/>}
@@ -74,14 +90,18 @@ function App() {
             href={"https://www.linkedin.com/in/wpetryszyn/"}
             target={'_blank'}/>
           <ContactRow
-            icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
-            title={"GitHub"}
-            href={"https://github.com/jutupe"}
+            icon={<MailIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"Mail"}
+            href={"mailto:contact@petryszyn.dev"}
             target={'_blank'}/>
-        </ContentBox>
-        <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
+        </div>
+        <ContentBox
+          title={"Projects"}
+          extra={"CD-01"}
+          className={"grow shrink-0 corner-cut-tr-15"}
+          contentClassName={"grid grid-cols-2 gap-2"}>
           {projects.map((project) => (
-            <Project
+            <ProjectCard
               id={project.id}
               key={project.id}
               onClick={() => {
@@ -90,7 +110,7 @@ function App() {
           ))}
         </ContentBox>
         <ContentBox
-          title={"Knowledge"}
+          title={"Skills"}
           extra={"CD-02"}
           className={"corner-cut-tr-15 grow"}
           contentClassName={"overflow-y-auto pt-0"}
@@ -98,17 +118,14 @@ function App() {
         >
           <table className={"table-auto border-spacing-y-2 border-separate w-full pb-4"}>
             <tbody>
-              <SkillRow technology={"React Native"} level={5} viewportRoot={knowledgeRef} order={0} stagger={rowStagger}/>
-              <SkillRow technology={"Nextjs"} level={4} viewportRoot={knowledgeRef} order={1} stagger={rowStagger}/>
-              <SkillRow technology={"React"} level={4} viewportRoot={knowledgeRef} order={2} stagger={rowStagger}/>
-              <SkillRow technology={"Docker"} level={3} viewportRoot={knowledgeRef} order={3} stagger={rowStagger}/>
-              <SkillRow technology={"Kotlin"} level={5} viewportRoot={knowledgeRef} order={4} stagger={rowStagger}/>
-              <SkillRow technology={"Spring"} level={4} viewportRoot={knowledgeRef} order={5} stagger={rowStagger}/>
-              <SkillRow technology={"Nestjs"} level={3.5} viewportRoot={knowledgeRef} order={6} stagger={rowStagger}/>
-              <SkillRow technology={"Figma"} level={3} viewportRoot={knowledgeRef} order={7} stagger={rowStagger}/>
-              <SkillRow technology={"Rabbit"} level={3} viewportRoot={knowledgeRef} order={8} stagger={rowStagger}/>
-              <SkillRow technology={"DevOps"} level={2.5} viewportRoot={knowledgeRef} order={9} stagger={rowStagger}/>
-              <SkillRow technology={"PostgreSQL"} level={4} viewportRoot={knowledgeRef} order={10} stagger={rowStagger}/>
+            {skills.map((skill, i) => (
+              <SkillRow
+                technology={skill.name}
+                level={skill.level}
+                viewportRoot={knowledgeRef}
+                order={i}
+                stagger={rowStagger}/>
+            ))}
             </tbody>
           </table>
         </ContentBox>
@@ -145,7 +162,7 @@ function App() {
             <RedDots/>
           </div>
         </ContentBox>
-        <ContentBox className={"col-span-2"}>
+        <ContentBox className={"col-span-2"} contentClassName={"space-y-2"}>
           <ExperienceRow
             icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"RST Software"}
@@ -158,16 +175,19 @@ function App() {
         <ContentBox
           className={"bg-[url('/images/warning.svg')] bg-repeat bg-size-[50px]"}
           contentClassName={"flex max-md:min-h-40 h-full items-center justify-center"}>
-          {/*<div className={"bg-gray-900 p-2"}>*/}
-          {/*  <div className={"relative group bg-rose-500/20 cursor-pointer border-b-4 border-rose-500"}>*/}
-          {/*    <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>*/}
-          {/*    <div className={"p-2 lg:p-4 lg:text-2xl text-rose-500"}>*/}
-          {/*      See more*/}
-          {/*    </div>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
+          {SEE_MORE_ENABLED && (
+            <div className={"bg-gray-900 p-2"}>
+              <div className={"relative group bg-rose-500/20 cursor-pointer border-b-4 border-rose-500"}>
+                <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+                <div className={"p-2 lg:p-4 lg:text-2xl text-rose-500"}>
+                  See more
+                </div>
+              </div>
+            </div>
+          )}
         </ContentBox>
       </div>
+
       <AnimatePresence>
         {modalProjectId && (
           <ProjectModal projectId={modalProjectId} onDismiss={() => {

@@ -10,7 +10,7 @@ const ContentBox: React.FC<{
   contentRef?: React.Ref<HTMLDivElement>
 }> = ({title, extra, children, className, contentClassName, contentRef}) => {
   return (
-    <div className={cn("bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
+    <div className={cn("flex flex-col bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
       {title !== undefined && (
         <div className={"flex justify-between pr-4 bg-amber-300 text-gray-900"}>
           <span>

@@ -12,9 +12,9 @@ const ContactRow: React.FC<{
         {icon}
       </div>
 
-      <div className={"relative border-b-4 border-rose-500 w-full"}>
-        <div className={"absolute -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+      <div className={"relative border-b-4 border-rose-500 w-full corner-cut-tr-8"}>
         <span>{title}</span>
+        <div className={"absolute -z-10 top-0 bottom-0 w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
       </div>
     </a>
   )
