@@ -3,6 +3,7 @@ import * as React from "react";
 import {projects} from "../lib/projects";
 import {useScrollBlock} from "../hooks/useScrollBlock";
 import {LinkIcon} from "lucide-react";
+import {PhotoView} from "react-photo-view";
 
 interface ProjectModalProps {
   projectId: string;
@@ -84,15 +85,29 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
 
               <div className={"flex flex-row gap-2 p-2 mt-2 overflow-x-scroll"}>
                 {project.images.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`${project.title} image ${index + 1}`}
-                    className={"h-40 inline-block border-1 border-amber-300 p-1"}
-                  />
+                  <PhotoView src={image}>
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`${project.title} image ${index + 1}`}
+                      className={"h-40 inline-block border-1 border-amber-300 p-1 cursor-zoom-in"}
+                    />
+
+                  </PhotoView>
                 ))}
               </div>
             </div>
+          )}
+
+          {project.about && (
+            <div className={"mt-4"}>
+              <span className={"bg-amber-300 text-black p-2 pr-5 corner-cut-br-16"}>About</span>
+
+              <div className={"p-2 pb-0 mt-2"}>
+                {project.about}
+              </div>
+            </div>
+
           )}
 
           {project.technologies && project.technologies.length > 0 && (
