@@ -1,33 +1,88 @@
-import {Scene} from "./objects/Scene.tsx";
-import * as React from "react";
-import {cn} from "./lib/utils.ts";
-import {motion} from "motion/react";
+import {Scene} from "./objects/Scene";
 import {BriefcaseIcon, GithubIcon, GraduationCapIcon, LinkedinIcon, MailIcon} from "lucide-react";
-import {SiDiscord} from '@icons-pack/react-simple-icons';
+import ContentBox from "./components/ContentBox";
+import ProjectCard from "./components/ProjectCard.tsx";
+import SkillRow from "./components/SkillRow";
+import ExperienceRow from "./components/ExperienceRow";
+import ContactRow from "./components/ContactRow";
+import {projects} from "./lib/projects";
+import {useEffect, useRef, useState} from "react";
+import {AnimatePresence} from "motion/react";
+import ProjectModal from "./components/ProjectModal";
+import RedDots from "./components/RedDots";
+import useMediaQuery from "./hooks/useMediaQuery";
+import {type GlitchPartialOptions, PowerGlitch} from 'powerglitch';
+import {skills} from "./lib/skills.ts";
+
+const SEE_MORE_ENABLED = false;
+const GLITCH_SETTINGS: GlitchPartialOptions = {
+  playMode: 'manual',
+  createContainers: true,
+  hideOverflow: true,
+  timing: {duration: 450, iterations: 1},
+  glitchTimeSpan: {start: 0, end: 1},
+  slice: {count: 8, velocity: 10, minHeight: 0.02, maxHeight: 0.15, hueRotate: false},
+  pulse: false
+}
 
 function App() {
+  const [modalProjectId, setModalProjectId] = useState<string | null>(null);
+
+  const knowledgeRef = useRef<HTMLDivElement>(null!);
+  const photoRef = useRef<HTMLDivElement>(null!);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const rowStagger = isDesktop ? 0.08 : 0;
+
+  useEffect(() => {
+    if (!photoRef.current) return;
+    const controller = PowerGlitch.glitch(photoRef.current, GLITCH_SETTINGS);
+    const el = photoRef.current;
+    const trigger = () => controller.startGlitch()
+
+    el.addEventListener('mouseenter', trigger);
+    el.addEventListener('click', trigger);
+
+    return () => {
+      el.removeEventListener('mouseenter', trigger);
+      el.removeEventListener('click', trigger);
+      controller.stopGlitch()
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!photoRef.current) return;
+
+    const randomInterval = () => Math.random() * (10000 - 5000) + 5000;
+    const controller = PowerGlitch.glitch(photoRef.current, GLITCH_SETTINGS);
+
+    const interval = setInterval(() => {
+      controller.startGlitch()
+    }, randomInterval());
+
+    return () => {
+      clearInterval(interval);
+      controller.stopGlitch()
+    }
+  }, []);
+
   return (
-    <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white"}>
+    <div className={"md:h-screen w-screen flex flex-col md:flex-row text-white font-audiowide"}>
       <div className={"flex flex-col min-w-[348px] md:w-1/4"}>
         <div
-          className={"flex flex-row justify-between font-audiowide border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
+          className={"flex flex-row justify-between border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
           <div className={"flex flex-col"}>
             <span className={"opacity-50"}>Fullstack<br/>developer</span>
             <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
           </div>
-          <div className={"bg-gray-900 aspect-3/4 h-44"}>
+          <div ref={photoRef} className={"bg-gray-900 aspect-3/4 h-44"}>
             <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
           </div>
         </div>
-        <ContentBox
-          title={"Contact"}
-          extra={"CD-01"}
-          className={"corner-cut-tr-15 shrink-0"}
-          contentClassName={"space-y-2"}>
+        <div className={"shrink-0 space-y-2 p-2"}>
           <ContactRow
-            icon={<MailIcon color={"var(--color-rose-500)"} size={24}/>}
-            title={"Mail"}
-            href={"mailto:contact@petryszyn.dev"}
+            icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"GitHub"}
+            href={"https://github.com/jutupe"}
             target={'_blank'}/>
           <ContactRow
             icon={<LinkedinIcon color={"var(--color-rose-500)"} size={24}/>}
@@ -35,40 +90,42 @@ function App() {
             href={"https://www.linkedin.com/in/wpetryszyn/"}
             target={'_blank'}/>
           <ContactRow
-            icon={<GithubIcon color={"var(--color-rose-500)"} size={24}/>}
-            title={"GitHub"}
-            href={"https://github.com/jutupe"}
+            icon={<MailIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"Mail"}
+            href={"mailto:contact@petryszyn.dev"}
             target={'_blank'}/>
-          <ContactRow
-            icon={<SiDiscord color={"var(--color-rose-500)"} size={24}/>}
-            title={"Discord"}
-            href={"https://discord.com/users/314113513205268480"}
-            target={'_blank'}/>
-        </ContentBox>
-        <ContentBox className={"grow h-30 shrink-0"} contentClassName={"grid grid-cols-2 gap-2"}>
-          <Project title={"Newbies.pl"}/>
-          <Project title={"Retromachina"}/>
-          <Project title={"Jeteo"}/>
-          <Project title={"AI training"}/>
+        </div>
+        <ContentBox
+          title={"Projects"}
+          extra={"CD-01"}
+          className={"grow shrink-0 corner-cut-tr-15"}
+          contentClassName={"grid grid-cols-2 gap-2"}>
+          {projects.map((project) => (
+            <ProjectCard
+              id={project.id}
+              key={project.id}
+              onClick={() => {
+                setModalProjectId(project.id)
+              }}/>
+          ))}
         </ContentBox>
         <ContentBox
-          title={"Knowledge"}
+          title={"Skills"}
           extra={"CD-02"}
           className={"corner-cut-tr-15 grow"}
-          contentClassName={"overflow-y-auto pt-0"}>
+          contentClassName={"overflow-y-auto pt-0"}
+          contentRef={knowledgeRef}
+        >
           <table className={"table-auto border-spacing-y-2 border-separate w-full pb-4"}>
             <tbody>
-            <SkillRow technology={"React Native"} level={5}/>
-            <SkillRow technology={"Nextjs"} level={4}/>
-            <SkillRow technology={"React"} level={4}/>
-            <SkillRow technology={"Docker"} level={3}/>
-            <SkillRow technology={"Kotlin"} level={5}/>
-            <SkillRow technology={"Spring"} level={4}/>
-            <SkillRow technology={"Nestjs"} level={3.5}/>
-            <SkillRow technology={"Figma"} level={3}/>
-            <SkillRow technology={"Rabbit"} level={3}/>
-            <SkillRow technology={"DevOps"} level={2.5}/>
-            <SkillRow technology={"PostgreSQL"} level={4}/>
+            {skills.map((skill, i) => (
+              <SkillRow
+                technology={skill.name}
+                level={skill.level}
+                viewportRoot={knowledgeRef}
+                order={i}
+                stagger={rowStagger}/>
+            ))}
             </tbody>
           </table>
         </ContentBox>
@@ -102,15 +159,10 @@ function App() {
           </div>
 
           <div className={"absolute bottom-0 right-0 p-2 hidden sm:block"}>
-            <div className={"flex flex-row gap-1"}>
-              <div className={"size-10 rounded-l-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-b-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-r-full animate-pulse bg-rose-500/50"}/>
-              <div className={"size-10 rounded-full bg-rose-500/50"}/>
-            </div>
+            <RedDots/>
           </div>
         </ContentBox>
-        <ContentBox className={"col-span-2"}>
+        <ContentBox className={"col-span-2"} contentClassName={"space-y-2"}>
           <ExperienceRow
             icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"RST Software"}
@@ -123,119 +175,28 @@ function App() {
         <ContentBox
           className={"bg-[url('/images/warning.svg')] bg-repeat bg-size-[50px]"}
           contentClassName={"flex max-md:min-h-40 h-full items-center justify-center"}>
-          {/*<div className={"bg-gray-900 p-2"}>*/}
-          {/*  <div className={"relative group bg-rose-500/20 cursor-pointer border-b-4 border-rose-500"}>*/}
-          {/*    <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>*/}
-          {/*    <div className={"p-2 lg:p-4 lg:text-2xl text-rose-500"}>*/}
-          {/*      See more*/}
-          {/*    </div>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
+          {SEE_MORE_ENABLED && (
+            <div className={"bg-gray-900 p-2"}>
+              <div className={"relative group bg-rose-500/20 cursor-pointer border-b-4 border-rose-500"}>
+                <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
+                <div className={"p-2 lg:p-4 lg:text-2xl text-rose-500"}>
+                  See more
+                </div>
+              </div>
+            </div>
+          )}
         </ContentBox>
       </div>
-    </div>
-  )
-}
 
-const ContactRow: React.FC<{
-  icon: React.ReactNode,
-  title: string,
-  href: string,
-  target?: string
-}> = ({icon, title, href, target}) => {
-  return (
-    <a href={href} target={target} className={"group font-bold flex flex-row space-x-1"}>
-      <div className={"border-rose-500 border-4 size-8 min-w-8 p-1 flex items-center justify-center"}>
-        {icon}
-      </div>
-
-      <div className={"relative border-b-4 border-rose-500 w-full"}>
-        <div className={"absolute -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-        <span>{title}</span>
-      </div>
-    </a>
-  )
-}
-
-const ContentBox: React.FC<{
-  title?: string,
-  extra?: string,
-  children?: React.ReactNode,
-  className?: string
-  contentClassName?: string
-}> = ({title, extra, children, className, contentClassName}) => {
-  return (
-    <div className={cn("bg-gray-900 m-2 border-amber-300 border-2 font-audiowide overflow-hidden", className)}>
-      {title !== undefined && (
-        <div className={"flex justify-between pr-4 bg-amber-300 text-gray-900"}>
-          <span>
-            {title}
-          </span>
-
-          {extra !== undefined && (
-            <span className={"opacity-50"}>{extra}</span>
-          )}
-        </div>
-      )}
-
-      <div className={cn("p-2 size-full", contentClassName)}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-const Project: React.FC<{
-  title: string,
-}> = ({title}) => {
-  return (
-    <div
-      className={"group relative flex flex-col gap-2 bg-rose-500/20 min-h-10 h-full w-full text-xs border-l-4 border-rose-500 corner-cut-br-15 cursor-pointer"}>
-      <div className={"absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-      <span className={"z-10 p-1 text-rose-500 font-bold break-all "}>{title}</span>
-    </div>
-  )
-}
-
-const SkillRow: React.FC<{
-  technology: string,
-  level: number
-}> = ({technology, level}) => {
-  return (
-    <tr className={"group"}>
-      <td className={"text-xs pr-2"}>{technology}</td>
-      <td className={"border-1 border-rose-500 p-1 w-full"}>
-        <motion.div
-          className={"h-5 bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity duration-150"}
-          initial={{width: '0%'}}
-          whileInView={{width: `${level * 20}%`}}
-          viewport={{once: true}}/>
-      </td>
-    </tr>
-  )
-}
-
-const ExperienceRow: React.FC<{
-  icon: React.ReactNode,
-  title: string,
-  subtitle: string,
-}> = ({icon, title, subtitle}) => {
-  return (
-    <div className={"group flex flex-row items-center gap-2"}>
-      <div
-        className={"relative flex items-center justify-center h-8 w-12 min-w-12 corner-cut-bl-16 bg-rose-500/30 border-r-4 border-rose-500"}>
-        <div className={"absolute right-0 -z-10 h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-
-        {icon}
-      </div>
-
-      <div>
-        <div>{title}</div>
-        <div className={"opacity-50 text-sm"}>{subtitle}</div>
-      </div>
+      <AnimatePresence>
+        {modalProjectId && (
+          <ProjectModal projectId={modalProjectId} onDismiss={() => {
+            setModalProjectId(null)
+          }}/>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
 export default App
-

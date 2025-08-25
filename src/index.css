@@ -34,3 +34,12 @@ body {
 @utility corner-cut-br-* {
     clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - calc(--value(integer) * 1px)), calc(100% - calc(--value(integer) * 1px)) 100%, 0% 100%);
 }
+
+@keyframes spinReverse {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+.animate-spin-reverse {
+  animation: spinReverse 1s linear infinite;
+}
