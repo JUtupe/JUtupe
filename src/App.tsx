@@ -120,6 +120,7 @@ function App() {
             <tbody>
             {skills.map((skill, i) => (
               <SkillRow
+                key={skill.name}
                 technology={skill.name}
                 level={skill.level}
                 viewportRoot={knowledgeRef}

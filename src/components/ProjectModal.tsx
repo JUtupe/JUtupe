@@ -36,7 +36,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
   return (
     <Backdrop onDismiss={onDismiss}>
       <motion.div
-        className={"w-full md:w-2/3 min-h-10 fixed md:relative bottom-0 bg-gray-900 corner-cut-tr-25"}
+        className={"w-full md:w-2/3 min-h-10 fixed md:relative bottom-0 bg-gray-900 corner-cut-tr-25 max-h-4/5 overflow-y-auto"}
         onClick={(e) => {
           e.stopPropagation()
         }}
