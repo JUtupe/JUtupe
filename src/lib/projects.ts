@@ -35,7 +35,7 @@ export const projects: Project[] = [
     id: 'jeteo',
     title: "Jeteo",
     link: 'https://jeteo.newbies.pl',
-    description: "The jeteo portal was created to address the need to create RST CodeMeetings events and collect feedback. A personalized survey replaced the previously used Google Spreadsheets.",
+    description: "The jeteo portal was created to address the need to create RST CodeMeetings events and collect feedback.",
     about: "The project was created using Next.js with Tailwind CSS for the frontend, and Prisma with PostgreSQL for the backend. It features user authentication, event management, and feedback collection functionalities.",
     images: [
       './images/jeteo/jeteo_event.webp',

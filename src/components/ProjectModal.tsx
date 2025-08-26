@@ -46,10 +46,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
         <motion.div
           layoutId={`project-card-${project.id}`}
           transition={{duration: 0.1, ease: 'linear'}}
-          className={"group relative flex flex-col gap-2 min-h-10 w-full text-xs border-l-4 border-rose-500 bg-rose-500/20"}
+          className={"group relative flex flex-col gap-2 min-h-10 w-full border-l-4 border-rose-500 bg-rose-500/20"}
         >
           <div className={"-z-10 absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-          <span className={"p-1 text-rose-500 font-bold break-all"}>{project.title}</span>
+          <span className={"p-1 text-rose-500 font-bold text-lg break-all"}>{project.title}</span>
 
           {project.description && (
             <div className={"p-1"}>
@@ -64,7 +64,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
           transition={{duration: 0.1, ease: 'linear', delay: 0.2}}
           className={"border-x-2 border-b-2 border-amber-300"}>
 
-          <div className={"w-full h-2 bg-[url('/images/warning.svg')] bg-repeat bg-size-[20px] mb-2"}/>
+          <div className={"w-full h-1 bg-[url('/images/warning.svg')] bg-repeat bg-size-[20px] mb-2"}/>
 
           {project.link && (
             <a href={project.link} target={"_blank"} className={"group font-bold flex flex-row space-x-1 px-2"}>
@@ -72,11 +72,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
                 <LinkIcon color={"var(--color-amber-300)"} size={24}/>
               </div>
 
-              <div className={"relative border-b-4 border-amber-300 w-full z-10 corner-cut-tr-8"}>
+              <div className={"relative border-b-4 border-amber-300 pr-2 z-10 corner-cut-tr-8"}>
                 <span>Visit project</span>
                 <div className={"absolute -z-10 top-0 bottom-0 w-0 group-hover:w-full bg-amber-300/20 transition-all"}/>
               </div>
             </a>
+          )}
+
+          {project.about && (
+            <div className={"mt-4"}>
+              <span className={"bg-amber-300 text-black p-2 pr-5 corner-cut-br-16"}>About</span>
+
+              <div className={"p-2 pb-0 mt-2"}>
+                {project.about}
+              </div>
+            </div>
           )}
 
           {project.images && project.images.length > 0 && (
@@ -99,16 +109,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
             </div>
           )}
 
-          {project.about && (
-            <div className={"mt-4"}>
-              <span className={"bg-amber-300 text-black p-2 pr-5 corner-cut-br-16"}>About</span>
-
-              <div className={"p-2 pb-0 mt-2"}>
-                {project.about}
-              </div>
-            </div>
-
-          )}
 
           {project.technologies && project.technologies.length > 0 && (
             <div className={"mt-4"}>
