@@ -166,6 +166,10 @@ function App() {
         <ContentBox className={"col-span-2"} contentClassName={"space-y-2"}>
           <ExperienceRow
             icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
+            title={"Trans.eu"}
+            subtitle={"Mobile Team Leader"}/>
+          <ExperienceRow
+            icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"RST Software"}
             subtitle={"React Native Developer - Technical Team Leader"}/>
           <ExperienceRow
