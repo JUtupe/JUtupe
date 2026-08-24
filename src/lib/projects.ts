@@ -20,9 +20,9 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: 'retromachina',
+    id: 'retromachine',
     title: 'Retromachina',
-    link: 'https://retro.newbies.pl',
+    link: 'https://retromachine.eu',
     about: "Retromachina solves the problem of unstructured retrospectives in agile teams. It provides a structured approach to retrospectives, allowing teams to reflect on their work, identify areas for improvement, and plan actionable steps for future sprints. The tool offers features like voting, and action item tracking.",
     images: [
       './images/retromachine/retro_main.webp',

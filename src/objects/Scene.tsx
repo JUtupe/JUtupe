@@ -228,8 +228,8 @@ export const Scene: React.FC = () => {
         shadows
       >
         <Physics gravity={[0, -9.81, 0]} debug={debug}>
-          <ambientLight intensity={0.3}/>
-          <directionalLight position={[1, 1, 1]} color={'white'}/>
+          <ambientLight intensity={0.6}/>
+          <directionalLight position={[1, 1, 1]} color={'white'} intensity={1.5}/>
           <Room/>
           <Truck position={[1, 1.14, 0]} scale={0.05}/>
           <Trailer position={[1.3, 1.14, 0]} scale={0.05} rotation={[0, Math.PI / 2, 0]}/>

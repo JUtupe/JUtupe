@@ -32,7 +32,7 @@ I'm a full-stack developer specializing in **mobile**, **web** and **backend** s
 
 ## ⚙️ Working on
 
-[![Retromachina](https://svg.bookmark.style/api?url=https://github.com/Newbies-Workplace/retromachina&style=horizontal&mode=dark)](https://github.com/Newbies-Workplace/retromachina)
+[![Retromachine](https://svg.bookmark.style/api?url=https://github.com/Newbies-Workplace/retromachina&style=horizontal&mode=dark)](https://github.com/Newbies-Workplace/retromachina)
 
 ## 🔨 Tools I Use
 
