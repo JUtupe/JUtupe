@@ -33,9 +33,9 @@ const SkillRow: React.FC<{
       }}
     >
       <td className={"text-xs pr-2"}>{technology}</td>
-      <td className={"border-1 border-rose-500 p-1 w-full"}>
+      <td className={"border-1 border-rose-500 p-1 w-full neon-inset-rose"}>
         <motion.div
-          className={"h-5 bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity duration-150"}
+          className={"h-5 bg-rose-500 segmented opacity-60 group-hover:opacity-100 transition-opacity duration-150"}
           variants={barVariants}
           custom={`${level * 20}%`}
           transition={{duration: 0.6, ease: 'easeOut', delay}}

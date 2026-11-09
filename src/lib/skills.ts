@@ -4,6 +4,7 @@ type Skill = {
 }
 
 export const skills: Skill[] = [
+  {name: "Agentic development", level: 4},
   {name: "React Native", level: 5},
   {name: "Expo", level: 5},
   {name: "Nextjs", level: 4},

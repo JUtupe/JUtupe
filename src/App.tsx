@@ -13,6 +13,7 @@ import RedDots from "./components/RedDots";
 import useMediaQuery from "./hooks/useMediaQuery";
 import {type GlitchPartialOptions, PowerGlitch} from 'powerglitch';
 import {skills} from "./lib/skills.ts";
+import GlitchText from "./components/GlitchText";
 
 const SEE_MORE_ENABLED = false;
 const GLITCH_SETTINGS: GlitchPartialOptions = {
@@ -72,10 +73,11 @@ function App() {
           className={"flex flex-row justify-between border-amber-300 border-2 m-2 bg-amber-300 text-gray-900 min-h-45 max-h-56"}>
           <div className={"flex flex-col"}>
             <span className={"opacity-50"}>Fullstack<br/>developer</span>
-            <span className={'font-bold text-xl mt-auto'}>Wiktor<br/>Petryszyn</span>
+            <GlitchText mode={"idle"} text={"Wiktor\nPetryszyn"} className={'font-bold text-xl mt-auto'}/>
           </div>
-          <div ref={photoRef} className={"bg-gray-900 aspect-3/4 h-44"}>
+          <div ref={photoRef} className={"relative bg-gray-900 aspect-3/4 h-44"}>
             <div className={"bg-[url('/images/wiktor.svg')] bg-cover bg-center size-full"}/>
+            <div className={"absolute inset-0 scanlines bg-linear-to-t from-rose-500/25 to-transparent pointer-events-none"}/>
           </div>
         </div>
         <div className={"shrink-0 space-y-2 p-2"}>
@@ -133,13 +135,13 @@ function App() {
       </div>
       <div className={"flex flex-col md:w-3/4 md:grid grid-rows-[minmax(0,1fr)_minmax(200px,1fr)] grid-cols-3"}>
         <ContentBox
-          className={"col-span-3 row-span-4 corner-cut-bl-15 [background-size:20px_20px] [background-image:radial-gradient(#364153_1px,transparent_1px)]"}
+          className={"col-span-3 row-span-4 corner-cut-bl-15 [background-size:20px_20px] [background-image:radial-gradient(#364153_1px,transparent_1px)] neon-inset-amber"}
           contentClassName={"p-0 max-md:h-[calc(50vh)] relative"}>
           <Scene/>
 
           <div className={"absolute top-0 left-0 h-full flex flex-row gap-1"}>
             <div className={"bg-[url('/images/warning.svg')] bg-repeat bg-size-[20px] w-3 h-full"}/>
-            <div className={"w-1 h-1/2 bg-amber-300 corner-cut-br-4"}/>
+            <div className={"w-1 h-1/2 bg-amber-300 corner-cut-br-4 neon-glow-amber"}/>
             <div className={"mt-1 space-y-1"}>
               <div className={"size-2 rounded-full border-1 border-amber-300"}/>
               <div className={"size-2 rounded-full border-1 border-amber-300"}/>
@@ -151,8 +153,9 @@ function App() {
           </div>
 
           <div
-            className={"text-xs bg-amber-300 corner-cut-bl-32 absolute top-0 right-0 p-1 pb-[7px] pl-5 text-gray-900/50"}>
-            THE ROOM
+            className={"text-xs bg-amber-300 corner-cut-bl-32 absolute top-0 right-0 p-1 pb-[7px] pl-5 text-gray-900/50 flex items-center gap-2"}>
+            <span className={"size-1.5 rounded-full bg-rose-500 animate-blink"}/>
+            <span className={"animate-flicker"}>THE ROOM // LIVE FEED</span>
           </div>
           <div
             className={"text-xs bg-amber-300 corner-cut-tr-32 absolute bottom-0 left-0 p-1 pt-[7px] pl-4 pr-5 text-gray-900/50"}>
@@ -162,12 +165,14 @@ function App() {
           <div className={"absolute bottom-0 right-0 p-2 hidden sm:block"}>
             <RedDots/>
           </div>
+
+          <div className={"crt-overlay"} aria-hidden/>
         </ContentBox>
         <ContentBox className={"col-span-2"} contentClassName={"space-y-2"}>
           <ExperienceRow
             icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"Trans.eu"}
-            subtitle={"Mobile Team Leader"}/>
+            subtitle={"Team Leader / Software Developer"}/>
           <ExperienceRow
             icon={<BriefcaseIcon color={"var(--color-rose-500)"} size={24}/>}
             title={"RST Software"}

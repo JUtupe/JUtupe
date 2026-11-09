@@ -10,16 +10,6 @@ type Project = {
 
 export const projects: Project[] = [
   {
-    id: 'newbies',
-    title: 'Newbies.pl',
-    link: 'https://newbies.pl',
-    description: 'Community of junior developers and tech enthusiasts that helps each other grow.',
-    about: "Hackathons, lectures and code reviews are our main activities. We organize events both online and offline. Our goal is to create a supportive environment where beginners can learn, share knowledge, and build connections in the tech industry.",
-    images: [
-      './images/newbies/newbies.webp',
-    ],
-  },
-  {
     id: 'retromachine',
     title: 'Retromachina',
     link: 'https://retromachine.eu',
@@ -30,6 +20,16 @@ export const projects: Project[] = [
       './images/retromachine/retro_reflection.webp',
     ],
     technologies: ['nestjs', 'React', 'Tailwind'],
+  },
+  {
+    id: 'newbies',
+    title: 'Newbies.pl',
+    link: 'https://newbies.pl',
+    description: 'Community of junior developers and tech enthusiasts that helps each other grow.',
+    about: "Hackathons, lectures and code reviews are our main activities. We organize events both online and offline. Our goal is to create a supportive environment where beginners can learn, share knowledge, and build connections in the tech industry.",
+    images: [
+      './images/newbies/newbies.webp',
+    ],
   },
   {
     id: 'jeteo',
@@ -55,5 +55,29 @@ export const projects: Project[] = [
       './images/wypozyczajka/wypozyczajka_main.webp',
       './images/wypozyczajka/wypozyczajka_form.webp',
     ]
+  },
+  {
+    id: 'webdrive',
+    title: 'Webdrive',
+    link: 'https://webdrive.petryszyn.dev',
+    description: 'Multiplayer road trip through a procedural wasteland, right in the browser.',
+    about: "The Web Drive is a cozy co-op survival game for up to 8 players. You start in a workshop, assemble an old car from scattered parts, pack a fuel canister and set off with your crew across an endless procedurally generated desert. Players share an invite code, customise their character and keep an eye on health, hunger and thirst while the road goes on.",
+    images: [
+      './images/webdrive/webdrive_lobby.webp',
+      './images/webdrive/webdrive_workshop.webp',
+      './images/webdrive/webdrive_desert.webp',
+    ],
+    technologies: ['React', 'Three.js', 'Rapier', 'Colyseus'],
+  },
+  {
+    id: 'mobile',
+    title: 'Mobile Apps',
+    link: 'https://play.google.com/store/search?q=pub%3Apetryszyn.dev&c=apps',
+    description: 'Casual puzzle games for Android published on Google Play.',
+    about: "A family of relaxing offline puzzle games released under petryszyn.dev. Water Sort: pour and sort colours between tubes with undo, extra tube and chapters of levels. Sudoku: Train your BRAIN: classic Sudoku with notes, hints and lives. Both share one polished UI, progression with three-star ratings, a daily challenge with streaks and play without a time limit or internet connection.",
+    images: [
+      './images/mobile/mobile_watersort.webp',
+      './images/mobile/mobile_sudoku.webp',
+    ],
   }
 ]

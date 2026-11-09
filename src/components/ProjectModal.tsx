@@ -4,6 +4,7 @@ import {projects} from "../lib/projects";
 import {useScrollBlock} from "../hooks/useScrollBlock";
 import {LinkIcon} from "lucide-react";
 import {PhotoView} from "react-photo-view";
+import GlitchText from "./GlitchText.tsx";
 
 interface ProjectModalProps {
   projectId: string;
@@ -13,7 +14,7 @@ interface ProjectModalProps {
 const Backdrop = ({children, onDismiss}: { children: React.ReactNode, onDismiss?: () => void }) => {
   return (
     <motion.div
-      className={"fixed inset-0 bg-black/50 flex items-center justify-center"}
+      className={"fixed inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center"}
       onClick={onDismiss}
       exit={{opacity: 0}}
       initial={{opacity: 0}}
@@ -49,7 +50,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({projectId, onDismiss}) => {
           className={"group relative flex flex-col gap-2 min-h-10 w-full border-l-4 border-rose-500 bg-rose-500/20"}
         >
           <div className={"-z-10 absolute h-full w-0 group-hover:w-full bg-rose-500/30 transition-all"}/>
-          <span className={"p-1 text-rose-500 font-bold text-lg break-all"}>{project.title}</span>
+          <span className={"p-1 text-rose-500 font-bold text-lg break-all neon-text-rose"}>
+            <GlitchText mode={"idle"} text={project.title}/>
+          </span>
 
           {project.description && (
             <div className={"p-1"}>
